@@ -1,0 +1,38 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "urlpattern"
+description = "An implementation of the URL Pattern Standard for Python written in Rust"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "방성범 (Bang Seongbeom)", email = "bangseongbeom@gmail.com" }]
+keywords = ["urlpattern"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Internet :: WWW/HTTP",
+    "Typing :: Typed",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/urlpattern/python-urlpattern"
+Repository = "https://github.com/urlpattern/python-urlpattern.git"
+Issues = "https://github.com/urlpattern/python-urlpattern/issues"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]

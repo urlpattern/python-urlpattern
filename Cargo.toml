@@ -1,0 +1,20 @@
+[package]
+name = "python-urlpattern"
+version = "0.1.0"
+authors = ["방성범 (Bang Seongbeom) <bangseongbeom@gmail.com>"]
+edition = "2021"
+description = "An implementation of the URL Pattern Standard for Python written in Rust"
+repository = "https://github.com/urlpattern/python-urlpattern"
+license = "MIT"
+keywords = ["urlpattern"]
+categories = ["web-programming"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.22.0"
+regex = "1.10.0"
+url = "2.5.0"
+urlpattern = "0.2.0"
