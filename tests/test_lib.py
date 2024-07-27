@@ -10,7 +10,6 @@ from urlpattern import URLPattern
 # 1. Remove tests/urlpatterntestdata.json.
 # 2. Update the URL.
 # 2. Run `pytest`.
-# TODO with argparse
 urlpatterntestdata_path = pathlib.Path("tests/urlpatterntestdata.json")
 if not urlpatterntestdata_path.exists():
     with urllib.request.urlopen(
