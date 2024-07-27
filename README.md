@@ -28,7 +28,6 @@ py -m pip install urlpattern
 ```py
 from urlpattern import URLPattern
 
-
 pattern = URLPattern("https://example.com/*")
 print(pattern.test("https://example.com/foo/bar"))  # output: True
 
