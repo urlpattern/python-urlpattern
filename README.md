@@ -35,7 +35,3 @@ result = pattern.exec("/abc/def", "https://test.example")
 print(result["pathname"]["groups"]["foo"])  # output: abc
 print(result["pathname"]["groups"]["bar"])  # output: def
 ```
-
-## License
-
-[MIT License](/LICENSE)
