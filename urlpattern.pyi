@@ -28,7 +28,7 @@ class URLPattern:
     @property
     def hash(self) -> str: ...
 
-class URLPatternInit(TypedDict):
+class URLPatternInit(TypedDict, total=False):
     protocol: str
     username: str
     password: str

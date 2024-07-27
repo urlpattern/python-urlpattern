@@ -72,4 +72,5 @@ def test(entry):
                     continue
 
             else:
+                assert result
                 assert result[key] == entry["expected_match"][key]
