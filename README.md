@@ -18,13 +18,13 @@ It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/ru
 ```py
 from urlpattern import URLPattern
 
-pattern = URLPattern("https://example.com/*")
-print(pattern.test("https://example.com/foo/bar"))  # output: True
+pattern = URLPattern("https://example.com/admin/*")
+print(pattern.test("https://example.com/admin/main/"))  # output: True
+print(pattern.test("https://example.com/main/"))  # output: False
 
-pattern = URLPattern({"pathname": "/:foo/:bar"})
-result = pattern.exec("/abc/def", "https://test.example")
-print(result["pathname"]["groups"]["foo"])  # output: abc
-print(result["pathname"]["groups"]["bar"])  # output: def
+pattern = URLPattern({"pathname": "/users/:id/"})
+result = pattern.exec({"pathname": "/users/4163/"})
+print(result["pathname"]["groups"]["id"])  # output: 4163
 ```
 
 ## Installation
