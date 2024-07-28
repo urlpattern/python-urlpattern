@@ -13,20 +13,6 @@ It can help you create a routing mechanism for your web servers or frameworks.
 
 It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
 
-## Installation
-
-On Linux/UNIX or macOS:
-
-```sh
-pip install urlpattern
-```
-
-On Windows:
-
-```sh
-py -m pip install urlpattern
-```
-
 ## Example
 
 ```py
@@ -39,4 +25,18 @@ pattern = URLPattern({"pathname": "/:foo/:bar"})
 result = pattern.exec("/abc/def", "https://test.example")
 print(result["pathname"]["groups"]["foo"])  # output: abc
 print(result["pathname"]["groups"]["bar"])  # output: def
+```
+
+## Installation
+
+On Linux/UNIX or macOS:
+
+```sh
+pip install urlpattern
+```
+
+On Windows:
+
+```sh
+py -m pip install urlpattern
 ```
