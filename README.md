@@ -5,9 +5,13 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![CI](https://github.com/urlpattern/python-urlpattern/actions/workflows/CI.yml/badge.svg)](https://github.com/urlpattern/python-urlpattern/actions)
 
-An implementation of [the URL Pattern Standard](https://urlpattern.spec.whatwg.org/) for Python written in Rust
+This library is an implementation of [the URL Pattern Standard](https://urlpattern.spec.whatwg.org/) for Python written in Rust.
 
-This is a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
+You can match URLs to patterns using the syntax like `/users/:id/`, similar to [Express](https://expressjs.com/) or [Path-to-RegExp](https://github.com/pillarjs/path-to-regexp) in Node.js.
+
+It can help you create a routing mechanism for your web servers or frameworks.
+
+It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
 
 ## Installation
 
