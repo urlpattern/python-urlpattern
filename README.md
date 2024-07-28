@@ -11,7 +11,7 @@ You can match URLs to patterns using the syntax like `/users/:id/`, similar to [
 
 It can help you create a routing mechanism for your web servers or frameworks.
 
-It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
+It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin). Due to limitations in [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern), it may not support all features specified in the standard.
 
 ## Example
 
