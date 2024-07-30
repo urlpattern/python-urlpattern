@@ -7,9 +7,9 @@
 
 This library is an implementation of [the URL Pattern Standard](https://urlpattern.spec.whatwg.org/) for Python written in Rust.
 
-You can match URLs to patterns using the syntax like `/users/:id/`, similar to [Express](https://expressjs.com/) or [Path-to-RegExp](https://github.com/pillarjs/path-to-regexp) in Node.js. It can help you create routing mechanisms for your web servers or frameworks.
+It provides a pattern matching syntax like `/users/:id/`, similar to [Express](https://expressjs.com/) or [Path-to-RegExp](https://github.com/pillarjs/path-to-regexp) in Node.js. You can use it as a foundation to build your own web server or framework.
 
-It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin). Due to limitations in [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern), it may not support all features specified in the standard.
+It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
 
 ## Example
 
@@ -38,3 +38,7 @@ On Windows:
 ```sh
 py -m pip install urlpattern
 ```
+
+## Limitations
+
+Due to limitations in the dependency [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern), it may not support all features specified in [the standard](https://urlpattern.spec.whatwg.org/).
