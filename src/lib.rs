@@ -6,7 +6,9 @@ use pyo3::{
     exceptions::PyValueError,
     prelude::*,
     types::{PyDict, PyList},
+    BoundObject,
 };
+use urlpattern::UrlPatternOptions;
 
 #[pyclass]
 pub struct URLPattern(pub urlpattern::UrlPattern);
@@ -26,13 +28,14 @@ impl URLPattern {
             <urlpattern::UrlPattern>::parse(
                 urlpattern::quirks::process_construct_pattern_input(string_or_init_input, baseURL)
                     .map_err(Error)?,
+                UrlPatternOptions::default(),
             )
             .map_err(Error)?,
         ))
     }
 
     pub fn __repr__(&self, py: Python) -> String {
-        let dict = PyDict::new_bound(py);
+        let dict = PyDict::new(py);
         dict.set_item("protocol", self.0.protocol()).unwrap();
         dict.set_item("username", self.0.username()).unwrap();
         dict.set_item("password", self.0.password()).unwrap();
@@ -229,19 +232,23 @@ pub struct URLPatternResult {
     pub hash: URLPatternComponentResult,
 }
 
-impl IntoPy<PyObject> for URLPatternResult {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        let dict = PyDict::new_bound(py);
+impl<'py> IntoPyObject<'py> for URLPatternResult {
+    type Target = PyDict;
+    type Output = Bound<'py, Self::Target>;
+    type Error = std::convert::Infallible;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        let dict = PyDict::new(py);
 
         let (string_or_init, base_url) = self.inputs;
-        let list = PyList::empty_bound(py);
+        let list = PyList::empty(py);
 
         match string_or_init {
             urlpattern::quirks::StringOrInit::String(string) => {
                 list.append(string).unwrap();
             }
             urlpattern::quirks::StringOrInit::Init(init) => {
-                let init_dict = PyDict::new_bound(py);
+                let init_dict = PyDict::new(py);
                 if let Some(protocol) = init.protocol {
                     init_dict.set_item("protocol", protocol).unwrap();
                 }
@@ -288,22 +295,14 @@ impl IntoPy<PyObject> for URLPatternResult {
         dict.set_item("search", self.search).unwrap();
         dict.set_item("hash", self.hash).unwrap();
 
-        dict.into()
+        Ok(dict.into_bound())
     }
 }
 
+#[derive(IntoPyObject, IntoPyObjectRef)]
 pub struct URLPatternComponentResult {
     input: String,
-    groups: HashMap<String, String>,
-}
-
-impl ToPyObject for URLPatternComponentResult {
-    fn to_object(&self, py: Python<'_>) -> PyObject {
-        let dict = PyDict::new_bound(py);
-        dict.set_item("input", self.input.clone()).unwrap();
-        dict.set_item("groups", self.groups.clone()).unwrap();
-        dict.into()
-    }
+    groups: HashMap<String, Option<String>>,
 }
 
 pub struct Error(urlpattern::Error);
