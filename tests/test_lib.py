@@ -1,21 +1,17 @@
 import json
 import pathlib
-import urllib.request
 
 import pytest
 from urlpattern import URLPattern
 
+# This test is based on the web-platform-tests Project.
+#
 # To update the test data:
 #
-# 1. Remove tests/urlpatterntestdata.json.
-# 2. Update the URL.
-# 2. Run `pytest`.
+# 1. Go to https://github.com/web-platform-tests/wpt/blob/master/urlpattern/resources/urlpatterntestdata.json.
+# 2. Copy the content.
+# 3. Paste into `tests/urlpatterntestdata.json`.
 urlpatterntestdata_path = pathlib.Path("tests/urlpatterntestdata.json")
-if not urlpatterntestdata_path.exists():
-    with urllib.request.urlopen(
-        "https://raw.githubusercontent.com/web-platform-tests/wpt/3ce3e9794fcd97ff24506f5c5325f91fc00ef79c/urlpattern/resources/urlpatterntestdata.json"
-    ) as f:
-        urlpatterntestdata_path.write_bytes(f.read())
 urlpatterntestdata = json.loads(urlpatterntestdata_path.read_text("utf-8"))
 
 
