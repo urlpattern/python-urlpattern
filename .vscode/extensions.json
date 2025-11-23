@@ -3,6 +3,7 @@
         "charliermarsh.ruff",
         "github.vscode-github-actions",
         "ms-python.python",
+        "redhat.vscode-yaml",
         "rust-lang.rust-analyzer",
         "tamasfe.even-better-toml"
     ]
