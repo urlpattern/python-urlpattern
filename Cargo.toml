@@ -2,7 +2,7 @@
 name = "python-urlpattern"
 version = "0.1.4"
 authors = ["방성범 (Bang Seongbeom) <bangseongbeom@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "An implementation of the URL Pattern Standard for Python written in Rust"
 repository = "https://github.com/urlpattern/python-urlpattern"
 license = "MIT"
@@ -15,6 +15,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.27.1"
-regex = "1.11.0"
-url = "2.5.0"
-urlpattern = "0.3.0"
+regex = "1.12.2"
+url = "2.5.7"
+urlpattern = "0.4.1"
