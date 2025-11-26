@@ -31,8 +31,10 @@ def test(entry):
     try:
         pattern = URLPattern(*entry["pattern"])
 
-    except ValueError:
-        pytest.xfail("unsupported regular expression")
+    except UnicodeEncodeError as e:
+        if e.reason == "surrogates not allowed":
+            pytest.xfail(e.reason)
+        raise
 
     if "expected_obj" in entry:
         for key in entry["expected_obj"]:
