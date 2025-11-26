@@ -3,32 +3,34 @@
 use std::collections::HashMap;
 
 use pyo3::{
+    BoundObject,
     exceptions::PyValueError,
     prelude::*,
     types::{PyDict, PyList},
-    BoundObject,
 };
-use urlpattern::UrlPatternOptions;
 
-#[pyclass]
-pub struct URLPattern(pub urlpattern::UrlPattern);
+#[pyclass(name = "URLPattern")]
+pub struct UrlPattern(pub deno_urlpattern::UrlPattern);
 
 #[pymethods]
-impl URLPattern {
+impl UrlPattern {
     #[new]
     #[pyo3(signature = (input=None, baseURL=None))]
-    pub fn new(input: Option<URLPatternInput>, baseURL: Option<&str>) -> PyResult<Self> {
+    pub fn new(input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<Self> {
         let string_or_init_input = match input {
-            Some(input) => urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => {
-                urlpattern::quirks::StringOrInit::Init(urlpattern::quirks::UrlPatternInit::default())
-            }
+            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
+            None => deno_urlpattern::quirks::StringOrInit::Init(
+                deno_urlpattern::quirks::UrlPatternInit::default(),
+            ),
         };
-        Ok(URLPattern(
-            <urlpattern::UrlPattern>::parse(
-                urlpattern::quirks::process_construct_pattern_input(string_or_init_input, baseURL)
-                    .map_err(Error)?,
-                UrlPatternOptions::default(),
+        Ok(UrlPattern(
+            <deno_urlpattern::UrlPattern>::parse(
+                deno_urlpattern::quirks::process_construct_pattern_input(
+                    string_or_init_input,
+                    baseURL,
+                )
+                .map_err(Error)?,
+                deno_urlpattern::UrlPatternOptions::default(),
             )
             .map_err(Error)?,
         ))
@@ -48,15 +50,15 @@ impl URLPattern {
     }
 
     #[pyo3(signature = (input=None, baseURL=None))]
-    pub fn test(&self, input: Option<URLPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
+    pub fn test(&self, input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
         let string_or_init_input = match input {
-            Some(input) => urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => {
-                urlpattern::quirks::StringOrInit::Init(urlpattern::quirks::UrlPatternInit::default())
-            }
+            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
+            None => deno_urlpattern::quirks::StringOrInit::Init(
+                deno_urlpattern::quirks::UrlPatternInit::default(),
+            ),
         };
         let Some((match_input, _)) =
-            urlpattern::quirks::process_match_input(string_or_init_input, baseURL)
+            deno_urlpattern::quirks::process_match_input(string_or_init_input, baseURL)
                 .map_err(Error)?
         else {
             return Ok(false);
@@ -67,17 +69,17 @@ impl URLPattern {
     #[pyo3(signature = (input=None, baseURL=None))]
     pub fn exec(
         &self,
-        input: Option<URLPatternInput>,
+        input: Option<UrlPatternInput>,
         baseURL: Option<&str>,
-    ) -> PyResult<Option<URLPatternResult>> {
+    ) -> PyResult<Option<UrlPatternResult>> {
         let string_or_init_input = match input {
-            Some(input) => urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => {
-                urlpattern::quirks::StringOrInit::Init(urlpattern::quirks::UrlPatternInit::default())
-            }
+            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
+            None => deno_urlpattern::quirks::StringOrInit::Init(
+                deno_urlpattern::quirks::UrlPatternInit::default(),
+            ),
         };
         let Some((match_input, inputs)) =
-            urlpattern::quirks::process_match_input(string_or_init_input, baseURL)
+            deno_urlpattern::quirks::process_match_input(string_or_init_input, baseURL)
                 .map_err(Error)?
         else {
             return Ok(None);
@@ -86,37 +88,37 @@ impl URLPattern {
             return Ok(None);
         };
 
-        Ok(Some(URLPatternResult {
+        Ok(Some(UrlPatternResult {
             inputs,
-            protocol: URLPatternComponentResult {
+            protocol: UrlPatternComponentResult {
                 input: result.protocol.input,
                 groups: result.protocol.groups,
             },
-            username: URLPatternComponentResult {
+            username: UrlPatternComponentResult {
                 input: result.username.input,
                 groups: result.username.groups,
             },
-            password: URLPatternComponentResult {
+            password: UrlPatternComponentResult {
                 input: result.password.input,
                 groups: result.password.groups,
             },
-            hostname: URLPatternComponentResult {
+            hostname: UrlPatternComponentResult {
                 input: result.hostname.input,
                 groups: result.hostname.groups,
             },
-            port: URLPatternComponentResult {
+            port: UrlPatternComponentResult {
                 input: result.port.input,
                 groups: result.port.groups,
             },
-            pathname: URLPatternComponentResult {
+            pathname: UrlPatternComponentResult {
                 input: result.pathname.input,
                 groups: result.pathname.groups,
             },
-            search: URLPatternComponentResult {
+            search: UrlPatternComponentResult {
                 input: result.search.input,
                 groups: result.search.groups,
             },
-            hash: URLPatternComponentResult {
+            hash: UrlPatternComponentResult {
                 input: result.hash.input,
                 groups: result.hash.groups,
             },
@@ -165,19 +167,21 @@ impl URLPattern {
 }
 
 #[derive(FromPyObject)]
-pub enum URLPatternInput<'py> {
+pub enum UrlPatternInput<'py> {
     String(String),
     Init(Bound<'py, PyDict>),
 }
 
-impl<'py> TryFrom<URLPatternInput<'py>> for urlpattern::quirks::StringOrInit {
+impl<'py> TryFrom<UrlPatternInput<'py>> for deno_urlpattern::quirks::StringOrInit {
     type Error = pyo3::PyErr;
 
-    fn try_from(input: URLPatternInput<'py>) -> Result<Self, Self::Error> {
+    fn try_from(input: UrlPatternInput<'py>) -> Result<Self, Self::Error> {
         Ok(match input {
-            URLPatternInput::String(pattern) => urlpattern::quirks::StringOrInit::String(pattern),
-            URLPatternInput::Init(init) => {
-                urlpattern::quirks::StringOrInit::Init(urlpattern::quirks::UrlPatternInit {
+            UrlPatternInput::String(pattern) => {
+                deno_urlpattern::quirks::StringOrInit::String(pattern)
+            }
+            UrlPatternInput::Init(init) => deno_urlpattern::quirks::StringOrInit::Init(
+                deno_urlpattern::quirks::UrlPatternInit {
                     protocol: init
                         .get_item("protocol")?
                         .map(|v| v.extract::<String>())
@@ -214,25 +218,25 @@ impl<'py> TryFrom<URLPatternInput<'py>> for urlpattern::quirks::StringOrInit {
                         .get_item("baseURL")?
                         .map(|v| v.extract::<String>())
                         .transpose()?,
-                })
-            }
+                },
+            ),
         })
     }
 }
 
-pub struct URLPatternResult {
-    pub inputs: (urlpattern::quirks::StringOrInit, Option<String>),
-    pub protocol: URLPatternComponentResult,
-    pub username: URLPatternComponentResult,
-    pub password: URLPatternComponentResult,
-    pub hostname: URLPatternComponentResult,
-    pub port: URLPatternComponentResult,
-    pub pathname: URLPatternComponentResult,
-    pub search: URLPatternComponentResult,
-    pub hash: URLPatternComponentResult,
+pub struct UrlPatternResult {
+    pub inputs: (deno_urlpattern::quirks::StringOrInit, Option<String>),
+    pub protocol: UrlPatternComponentResult,
+    pub username: UrlPatternComponentResult,
+    pub password: UrlPatternComponentResult,
+    pub hostname: UrlPatternComponentResult,
+    pub port: UrlPatternComponentResult,
+    pub pathname: UrlPatternComponentResult,
+    pub search: UrlPatternComponentResult,
+    pub hash: UrlPatternComponentResult,
 }
 
-impl<'py> IntoPyObject<'py> for URLPatternResult {
+impl<'py> IntoPyObject<'py> for UrlPatternResult {
     type Target = PyDict;
     type Output = Bound<'py, Self::Target>;
     type Error = std::convert::Infallible;
@@ -244,10 +248,10 @@ impl<'py> IntoPyObject<'py> for URLPatternResult {
         let list = PyList::empty(py);
 
         match string_or_init {
-            urlpattern::quirks::StringOrInit::String(string) => {
+            deno_urlpattern::quirks::StringOrInit::String(string) => {
                 list.append(string).unwrap();
             }
-            urlpattern::quirks::StringOrInit::Init(init) => {
+            deno_urlpattern::quirks::StringOrInit::Init(init) => {
                 let init_dict = PyDict::new(py);
                 if let Some(protocol) = init.protocol {
                     init_dict.set_item("protocol", protocol).unwrap();
@@ -300,12 +304,12 @@ impl<'py> IntoPyObject<'py> for URLPatternResult {
 }
 
 #[derive(IntoPyObject, IntoPyObjectRef)]
-pub struct URLPatternComponentResult {
+pub struct UrlPatternComponentResult {
     input: String,
     groups: HashMap<String, Option<String>>,
 }
 
-pub struct Error(urlpattern::Error);
+pub struct Error(deno_urlpattern::Error);
 
 impl From<Error> for PyErr {
     fn from(error: Error) -> Self {
@@ -313,16 +317,15 @@ impl From<Error> for PyErr {
     }
 }
 
-impl From<urlpattern::Error> for Error {
-    fn from(other: urlpattern::Error) -> Self {
+impl From<deno_urlpattern::Error> for Error {
+    fn from(other: deno_urlpattern::Error) -> Self {
         Self(other)
     }
 }
 
 /// A Python module implemented in Rust.
 #[pymodule]
-#[pyo3(name = "urlpattern")]
-pub fn python_urlpattern(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<URLPattern>()?;
-    Ok(())
+mod urlpattern {
+    #[pymodule_export]
+    use super::UrlPattern;
 }
