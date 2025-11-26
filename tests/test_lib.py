@@ -24,12 +24,6 @@ def test(entry):
         pytest.xfail("unsupported parameter")
 
     if entry.get("expected_obj") == "error":
-        if (
-            isinstance(entry["pattern"][0], dict)
-            and entry["pattern"][0].get("hostname") == "bad\\:hostname"
-        ):
-            pytest.xfail("unknown")
-
         with pytest.raises(Exception):
             URLPattern(*entry["pattern"])
         return
