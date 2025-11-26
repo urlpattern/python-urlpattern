@@ -2,6 +2,7 @@ import json
 import pathlib
 
 import pytest
+
 from urlpattern import URLPattern
 
 # This test is based on the web-platform-tests Project.
@@ -11,8 +12,9 @@ from urlpattern import URLPattern
 # 1. Go to https://github.com/web-platform-tests/wpt/blob/master/urlpattern/resources/urlpatterntestdata.json.
 # 2. Copy the content.
 # 3. Paste into `tests/urlpatterntestdata.json`.
-urlpatterntestdata_path = pathlib.Path("tests/urlpatterntestdata.json")
-urlpatterntestdata = json.loads(urlpatterntestdata_path.read_text("utf-8"))
+urlpatterntestdata = json.loads(
+    pathlib.Path("tests/urlpatterntestdata.json").read_text("utf-8")
+)
 
 
 @pytest.mark.parametrize("entry", urlpatterntestdata)
