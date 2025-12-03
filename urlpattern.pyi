@@ -2,11 +2,21 @@ from typing_extensions import TypeAlias, TypedDict, overload
 
 URLPatternInput: TypeAlias = str | URLPatternInit
 
+class URLPatternOptions(TypedDict, total=False):
+    ignoreCase: bool
+
 class URLPattern:
     @overload
-    def __init__(self, input: URLPatternInput, baseURL: str): ...
+    def __init__(
+        self,
+        input: URLPatternInput,
+        baseURL: str,
+        options: URLPatternOptions | None = None,
+    ): ...
     @overload
-    def __init__(self, input: URLPatternInput = {}): ...
+    def __init__(
+        self, input: URLPatternInput, options: URLPatternOptions | None = None
+    ): ...
     def test(self, input: URLPatternInput = {}, baseURL: str | None = None) -> bool: ...
     def exec(
         self, input: URLPatternInput = {}, baseURL: str | None = None

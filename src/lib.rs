@@ -10,27 +10,56 @@ use pyo3::{
 };
 
 #[pyclass(name = "URLPattern")]
-pub struct UrlPattern(pub deno_urlpattern::UrlPattern);
+struct UrlPattern(deno_urlpattern::UrlPattern);
 
 #[pymethods]
 impl UrlPattern {
     #[new]
-    #[pyo3(signature = (input=None, baseURL=None))]
-    pub fn new(input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<Self> {
+    #[pyo3(signature = (input=None, baseURL=None, options=None))]
+    pub fn new(
+        input: Option<UrlPatternInput>,
+        baseURL: Option<&Bound<'_, PyAny>>,
+        options: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<Self> {
+        let (base_url, options) = match baseURL {
+            Some(value) => {
+                if let Ok(options_dict) = value.cast::<PyDict>() {
+                    (None, Some(options_dict))
+                } else if value.is_none() {
+                    (None, options)
+                } else {
+                    (Some(value.extract::<String>()?), options)
+                }
+            }
+            None => (None, options),
+        };
+
         let string_or_init_input = match input {
             Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
             None => deno_urlpattern::quirks::StringOrInit::Init(
                 deno_urlpattern::quirks::UrlPatternInit::default(),
             ),
         };
+        let options = if let Some(options) = options {
+            deno_urlpattern::UrlPatternOptions {
+                ignore_case: options
+                    .get_item("ignoreCase")?
+                    .map(|v| v.extract::<bool>())
+                    .transpose()?
+                    .unwrap_or(false),
+                ..deno_urlpattern::UrlPatternOptions::default()
+            }
+        } else {
+            deno_urlpattern::UrlPatternOptions::default()
+        };
         Ok(UrlPattern(
             <deno_urlpattern::UrlPattern>::parse(
                 deno_urlpattern::quirks::process_construct_pattern_input(
                     string_or_init_input,
-                    baseURL,
+                    base_url.as_deref(),
                 )
                 .map_err(Error)?,
-                deno_urlpattern::UrlPatternOptions::default(),
+                options,
             )
             .map_err(Error)?,
         ))

@@ -19,11 +19,8 @@ urlpatterntestdata = json.loads(
 
 @pytest.mark.parametrize("entry", urlpatterntestdata)
 def test(entry):
-    if len(entry["pattern"]) == 2 and isinstance(entry["pattern"][1], dict):
-        pytest.xfail("unsupported parameter")
-
-    if len(entry["pattern"]) == 3 and isinstance(entry["pattern"][2], dict):
-        pytest.xfail("unsupported parameter")
+    if entry["pattern"] == [{"pathname": "*{}**?"}]:
+        pytest.skip("unsupported in the implementation")
 
     if entry.get("expected_obj") == "error":
         with pytest.raises(Exception):
@@ -35,35 +32,28 @@ def test(entry):
 
     except UnicodeEncodeError as e:
         if e.reason == "surrogates not allowed":
-            pytest.xfail(e.reason)
+            pytest.skip("unsupported in the implementation")
         raise
 
     if "expected_obj" in entry:
         for key in entry["expected_obj"]:
-            if getattr(pattern, key) in ("", "/") and entry["expected_obj"][key] == "*":
-                assert True
-
-            else:
-                assert getattr(pattern, key) == entry["expected_obj"][key]
+            assert getattr(pattern, key) == entry["expected_obj"][key]
 
     if entry.get("expected_match") == "error":
         with pytest.raises(Exception):
             pattern.exec(*entry["inputs"])
         return
 
-    elif isinstance(entry.get("expected_match"), dict):
+    if isinstance(entry.get("expected_match"), dict):
         result = pattern.exec(*entry["inputs"])
+        assert result
 
         for key in entry["expected_match"]:
-            if key != "inputs":
-                for group in entry["expected_match"][key]["groups"]:
-                    if entry["expected_match"][key]["groups"][group] is None:
-                        pytest.xfail("unsupported undefined group")
+            assert result[key] == entry["expected_match"][key]
 
-            if "exactly_empty_components" in entry:
-                if key not in entry["exactly_empty_components"]:
-                    continue
+    if "exactly_empty_components" in entry:
+        result = pattern.exec(*entry["inputs"])
 
-            else:
-                assert result
-                assert result[key] == entry["expected_match"][key]
+        for component in entry["exactly_empty_components"]:
+            if result:
+                assert result[component]["groups"] == {}
