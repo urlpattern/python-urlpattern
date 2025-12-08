@@ -14,7 +14,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user maturin pytest && python3 -m venv .venv"
+	"postCreateCommand": "python -m venv .venv && .venv/bin/pip install pytest && pipx install maturin && maturin develop"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
