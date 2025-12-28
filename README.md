@@ -29,11 +29,11 @@ py -m pip install urlpattern
 
 ## Usage
 
-Check [urlpattern.pyi](https://github.com/urlpattern/python-urlpattern/blob/main/urlpattern.pyi).
+Check [urlpattern.pyi](https://github.com/urlpattern/python-urlpattern/blob/main/urlpattern.pyi) or the examples below.
+
+For various usage examples, you can also check [Chrome for Developers](https://developer.chrome.com/docs/web-platform/urlpattern) or [MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API) (you need to convert JavaScript into Python).
 
 ## Examples
-
-For various usage examples, refer to [Chrome for Developers](https://developer.chrome.com/docs/web-platform/urlpattern) or [MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API) (you may need to convert JavaScript into Python).
 
 ### `test`
 
@@ -72,20 +72,33 @@ print(pattern.test("https://example.com/TeST"))  # output: True
 ### Simple WSGI app
 
 ```py
-from urlpattern import URLPattern
 from wsgiref.simple_server import make_server
 
+from urlpattern import URLPattern
 
 user_id_pattern = URLPattern({"pathname": "/users/:id"})
 
 
+def get_user_id(environ, start_response):
+    user_id = environ["result"]["pathname"]["groups"]["id"]
+    status = "200 OK"
+    response_headers = [("Content-type", "text/plain; charset=utf-8")]
+    start_response(status, response_headers)
+    return [f"{user_id=}".encode()]
+
+
 def app(environ, start_response):
     path = environ["PATH_INFO"]
+    method = environ["REQUEST_METHOD"]
 
     if result := user_id_pattern.exec({"pathname": path}):
-        user_id = result["pathname"]["groups"]["id"]
-        start_response("200 OK", [("Content-Type", "text/plain; charset=utf-8")])
-        return [f"{user_id=}".encode()]
+        if method == "GET":
+            return get_user_id(environ | {"result": result}, start_response)
+
+    status = "404 Not Found"
+    response_headers = [("Content-type", "text/plain; charset=utf-8")]
+    start_response(status, response_headers)
+    return [b"Not Found"]
 
 
 with make_server("", 8000, app) as httpd:
@@ -96,4 +109,4 @@ with make_server("", 8000, app) as httpd:
 
 Due to limitations in the dependency [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern), it may not support all features specified in [the standard](https://urlpattern.spec.whatwg.org/).
 
-Check the `pytest.skip` in [`tests/test_lib.py`](https://github.com/urlpattern/python-urlpattern/blob/main/tests/test_lib.py).
+Check `pytest.skip` in [`tests/test_lib.py`](https://github.com/urlpattern/python-urlpattern/blob/main/tests/test_lib.py).
