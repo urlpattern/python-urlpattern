@@ -46,10 +46,13 @@ def test(entry):
 
     if isinstance(entry.get("expected_match"), dict):
         result = pattern.exec(*entry["inputs"])
-        assert result
 
         for key in entry["expected_match"]:
             assert result[key] == entry["expected_match"][key]
+
+    else:
+        result = pattern.exec(*entry["inputs"])
+        assert result is None
 
     if "exactly_empty_components" in entry:
         result = pattern.exec(*entry["inputs"])
