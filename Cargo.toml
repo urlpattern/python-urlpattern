@@ -15,4 +15,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.27.2"
-deno_urlpattern = { package = "urlpattern", version = "0.4.2" }
+deno_urlpattern = { package = "urlpattern", version = "0.5.2" }
