@@ -13,6 +13,8 @@ The URL Pattern Standard is a web standard for URL pattern matching. It is usefu
 
 It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
 
+The naming conventions follow [the standard](https://urlpattern.spec.whatwg.org/) as closely as possible, similar to [xml.dom](https://docs.python.org/3/library/xml.dom.html).
+
 ## Installation
 
 On Linux/UNIX or macOS:
@@ -55,6 +57,16 @@ result = pattern.exec({"pathname": "/users/4163/"})
 print(result["pathname"]["groups"]["id"])  # output: 4163
 ```
 
+### `baseURL`
+
+```py
+from urlpattern import URLPattern
+
+pattern = URLPattern({"pathname": "/admin/*"}, "https://example.com")
+print(pattern.test({"pathname": "/admin/main/"}, "https://example.com"))  # output: True
+print(pattern.test("/admin/main/", "https://example.com"))  # output: True
+```
+
 ### `ignoreCase`
 
 ```py
@@ -69,7 +81,7 @@ print(pattern.test("https://example.com/test"))  # output: True
 print(pattern.test("https://example.com/TeST"))  # output: True
 ```
 
-### Simple WSGI app
+### A simple WSGI app
 
 ```py
 from wsgiref.simple_server import make_server
