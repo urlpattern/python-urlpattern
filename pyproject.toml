@@ -36,6 +36,3 @@ dynamic = ["version"]
 Homepage = "https://github.com/urlpattern/python-urlpattern"
 Repository = "https://github.com/urlpattern/python-urlpattern.git"
 Issues = "https://github.com/urlpattern/python-urlpattern/issues"
-
-[tool.maturin]
-features = ["pyo3/extension-module"]
