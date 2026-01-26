@@ -13,11 +13,11 @@ class URLPattern:
         self,
         input: URLPatternInput,
         baseURL: str,
-        options: Optional[URLPatternOptions] = None,
+        options: Optional[URLPatternOptions] = {},
     ) -> None: ...
     @overload
     def __init__(
-        self, input: URLPatternInput = {}, options: Optional[URLPatternOptions] = None
+        self, input: URLPatternInput = {}, options: Optional[URLPatternOptions] = {}
     ) -> None: ...
     def test(
         self, input: URLPatternInput = {}, baseURL: Optional[str] = None
