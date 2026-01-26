@@ -1,6 +1,6 @@
 [package]
 name = "python-urlpattern"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["방성범 (Bang Seongbeom) <bangseongbeom@gmail.com>"]
 edition = "2024"
 description = "An implementation of the URL Pattern Standard for Python written in Rust."
@@ -15,4 +15,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.27.2"
-deno_urlpattern = { package = "urlpattern", version = "0.4.2" }
+deno_urlpattern = { package = "urlpattern", version = "0.5.2" }

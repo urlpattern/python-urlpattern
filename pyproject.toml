@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=1.10,<2.0"]
+requires = ["maturin>=1.11,<2.0"]
 build-backend = "maturin"
 
 [project]
@@ -15,6 +15,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -22,7 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Free Threading",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Rust",
@@ -35,6 +36,3 @@ dynamic = ["version"]
 Homepage = "https://github.com/urlpattern/python-urlpattern"
 Repository = "https://github.com/urlpattern/python-urlpattern.git"
 Issues = "https://github.com/urlpattern/python-urlpattern/issues"
-
-[tool.maturin]
-features = ["pyo3/extension-module"]

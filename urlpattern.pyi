@@ -1,56 +1,65 @@
-from typing_extensions import TypeAlias, TypedDict, overload
+from typing import Optional, TypedDict, Union, overload
 
+from typing_extensions import TypeAlias
+
+URLPatternInput: TypeAlias = Union[str, URLPatternInit]
 
 class URLPatternOptions(TypedDict, total=False):
     ignoreCase: bool
-
-
-class URLPatternInit(TypedDict, total=False):
-    protocol: str
-    username: str
-    password: str
-    hostname: str
-    port: str
-    pathname: str
-    search: str
-    hash: str
-    baseURL: str
 
 class URLPattern:
     @overload
     def __init__(
         self,
-        input: URLPatternInit,
+        input: str,
         baseURL: str,
-        options: URLPatternOptions | None = None,
-    ): ...
+        options: URLPatternOptions = {},
+    ) -> None: ...
     @overload
     def __init__(
         self,
         input: str,
         baseURL: str,
-        options: URLPatternOptions | None = None,
-    ): ...
+        options: None,
+    ) -> None: ...
     @overload
     def __init__(
-        self, input: URLPatternInit, options: URLPatternOptions | None = None
-    ): ...
+        self,
+        input: URLPatternInit,
+        baseURL: str,
+        options: URLPatternOptions = {},
+    ) -> None: ...
     @overload
     def __init__(
-        self, input: str, options: URLPatternOptions | None = None
-    ): ...
+        self,
+        input: URLPatternInit,
+        baseURL: str,
+        options: None,
+    ) -> None: ...
     @overload
-    def test(self, input: URLPatternInit, baseURL: str | None = None) -> bool: ...
+    def __init__(self, input: str, options: URLPatternOptions = {}) -> None: ...
     @overload
-    def test(self, input: str, baseURL: str | None = None) -> bool: ...
+    def __init__(self, input: str, options: None) -> None: ...
+    @overload
+    def __init__(
+        self, input: URLPatternInit, options: URLPatternOptions = {}
+    ) -> None: ...
+    @overload
+    def __init__(self, input: URLPatternInit, options: None) -> None: ...
+    @overload
+    def test(self, input: str, baseURL: Optional[str] = None) -> bool: ...
+    @overload
+    def test(
+        self, input: URLPatternInit = {}, baseURL: Optional[str] = None
+    ) -> bool: ...
     @overload
     def exec(
-        self, input: URLPatternInit, baseURL: str | None = None
-    ) -> URLPatternResult | None: ...
+        self, input: str, baseURL: Optional[str] = None
+    ) -> Optional[URLPatternResult]: ...
     @overload
     def exec(
-        self, input: str, baseURL: str | None = None
-    ) -> URLPatternResult | None: ...
+        self, input: URLPatternInit = {}, baseURL: Optional[str] = None
+    ) -> Optional[URLPatternResult]: ...
     @property
     def protocol(self) -> str: ...
     @property
@@ -68,9 +77,19 @@ class URLPattern:
     @property
     def hash(self) -> str: ...
 
+class URLPatternInit(TypedDict, total=False):
+    protocol: str
+    username: str
+    password: str
+    hostname: str
+    port: str
+    pathname: str
+    search: str
+    hash: str
+    baseURL: str
 
 class URLPatternResult(TypedDict):
-    inputs: list[str | URLPatternInit]
+    inputs: list[URLPatternInput]
 
     protocol: URLPatternComponentResult
     username: URLPatternComponentResult
@@ -85,4 +104,4 @@ class URLPatternComponentResult(TypedDict):
     input: str
     groups: dict[str, str]
 
-URLPatternCompatible: TypeAlias = str | URLPatternInit | URLPattern
+URLPatternCompatible: TypeAlias = Union[str, URLPatternInit, URLPattern]

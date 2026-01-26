@@ -353,7 +353,7 @@ impl From<deno_urlpattern::Error> for Error {
 }
 
 /// A Python module implemented in Rust.
-#[pymodule]
+#[pymodule(gil_used = false)]
 mod urlpattern {
     #[pymodule_export]
     use super::UrlPattern;
