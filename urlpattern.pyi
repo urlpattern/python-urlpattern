@@ -17,7 +17,7 @@ class URLPattern:
     ) -> None: ...
     @overload
     def __init__(
-        self, input: URLPatternInput, options: Optional[URLPatternOptions] = None
+        self, input: URLPatternInput = {}, options: Optional[URLPatternOptions] = None
     ) -> None: ...
     def test(
         self, input: URLPatternInput = {}, baseURL: Optional[str] = None
