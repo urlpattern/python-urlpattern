@@ -11,19 +11,54 @@ class URLPattern:
     @overload
     def __init__(
         self,
-        input: URLPatternInput,
+        input: str,
         baseURL: str,
-        options: Optional[URLPatternOptions] = {},
+        options: URLPatternOptions = {},
     ) -> None: ...
     @overload
     def __init__(
-        self, input: URLPatternInput = {}, options: Optional[URLPatternOptions] = {}
+        self,
+        input: str,
+        baseURL: str,
+        options: None,
     ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        input: URLPatternInit,
+        baseURL: str,
+        options: URLPatternOptions = {},
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        input: URLPatternInit,
+        baseURL: str,
+        options: None,
+    ) -> None: ...
+    @overload
+    def __init__(self, input: str, options: URLPatternOptions = {}) -> None: ...
+    @overload
+    def __init__(self, input: str, options: None) -> None: ...
+    @overload
+    def __init__(
+        self, input: URLPatternInit = {}, options: URLPatternOptions = {}
+    ) -> None: ...
+    @overload
+    def __init__(self, input: URLPatternInit, options: None) -> None: ...
+    @overload
+    def test(self, input: str, baseURL: Optional[str] = None) -> bool: ...
+    @overload
     def test(
-        self, input: URLPatternInput = {}, baseURL: Optional[str] = None
+        self, input: URLPatternInit = {}, baseURL: Optional[str] = None
     ) -> bool: ...
+    @overload
     def exec(
-        self, input: URLPatternInput = {}, baseURL: Optional[str] = None
+        self, input: str, baseURL: Optional[str] = None
+    ) -> Optional[URLPatternResult]: ...
+    @overload
+    def exec(
+        self, input: URLPatternInit = {}, baseURL: Optional[str] = None
     ) -> Optional[URLPatternResult]: ...
     @property
     def protocol(self) -> str: ...
