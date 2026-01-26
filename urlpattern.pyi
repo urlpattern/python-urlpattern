@@ -1,6 +1,8 @@
-from typing_extensions import TypeAlias, TypedDict, overload
+from typing import Optional, TypedDict, Union, overload
 
-URLPatternInput: TypeAlias = str | URLPatternInit
+from typing_extensions import TypeAlias
+
+URLPatternInput: TypeAlias = Union[str, URLPatternInit]
 
 class URLPatternOptions(TypedDict, total=False):
     ignoreCase: bool
@@ -11,16 +13,18 @@ class URLPattern:
         self,
         input: URLPatternInput,
         baseURL: str,
-        options: URLPatternOptions | None = None,
+        options: Optional[URLPatternOptions] = None,
     ) -> None: ...
     @overload
     def __init__(
-        self, input: URLPatternInput, options: URLPatternOptions | None = None
+        self, input: URLPatternInput, options: Optional[URLPatternOptions] = None
     ) -> None: ...
-    def test(self, input: URLPatternInput = {}, baseURL: str | None = None) -> bool: ...
+    def test(
+        self, input: URLPatternInput = {}, baseURL: Optional[str] = None
+    ) -> bool: ...
     def exec(
-        self, input: URLPatternInput = {}, baseURL: str | None = None
-    ) -> URLPatternResult | None: ...
+        self, input: URLPatternInput = {}, baseURL: Optional[str] = None
+    ) -> Optional[URLPatternResult]: ...
     @property
     def protocol(self) -> str: ...
     @property
@@ -65,4 +69,4 @@ class URLPatternComponentResult(TypedDict):
     input: str
     groups: dict[str, str]
 
-URLPatternCompatible: TypeAlias = str | URLPatternInit | URLPattern
+URLPatternCompatible: TypeAlias = Union[str, URLPatternInit, URLPattern]
