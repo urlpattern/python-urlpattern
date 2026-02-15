@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 use pyo3::{
@@ -201,13 +202,13 @@ pub enum UrlPatternInput<'py> {
     Init(Bound<'py, PyDict>),
 }
 
-impl<'py> TryFrom<UrlPatternInput<'py>> for deno_urlpattern::quirks::StringOrInit {
+impl<'py> TryFrom<UrlPatternInput<'py>> for deno_urlpattern::quirks::StringOrInit<'static> {
     type Error = pyo3::PyErr;
 
     fn try_from(input: UrlPatternInput<'py>) -> Result<Self, Self::Error> {
         Ok(match input {
             UrlPatternInput::String(pattern) => {
-                deno_urlpattern::quirks::StringOrInit::String(pattern)
+                deno_urlpattern::quirks::StringOrInit::String(Cow::Owned(pattern))
             }
             UrlPatternInput::Init(init) => deno_urlpattern::quirks::StringOrInit::Init(
                 deno_urlpattern::quirks::UrlPatternInit {
@@ -254,7 +255,10 @@ impl<'py> TryFrom<UrlPatternInput<'py>> for deno_urlpattern::quirks::StringOrIni
 }
 
 pub struct UrlPatternResult {
-    pub inputs: (deno_urlpattern::quirks::StringOrInit, Option<String>),
+    pub inputs: (
+        deno_urlpattern::quirks::StringOrInit<'static>,
+        Option<String>,
+    ),
     pub protocol: UrlPatternComponentResult,
     pub username: UrlPatternComponentResult,
     pub password: UrlPatternComponentResult,
@@ -278,7 +282,7 @@ impl<'py> IntoPyObject<'py> for UrlPatternResult {
 
         match string_or_init {
             deno_urlpattern::quirks::StringOrInit::String(string) => {
-                list.append(string).unwrap();
+                list.append(string.into_owned()).unwrap();
             }
             deno_urlpattern::quirks::StringOrInit::Init(init) => {
                 let init_dict = PyDict::new(py);
