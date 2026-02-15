@@ -253,7 +253,7 @@ dependencies = [
 
 [[package]]
 name = "python-urlpattern"
-version = "0.1.8"
+version = "0.1.9"
 dependencies = [
  "pyo3",
  "urlpattern",
