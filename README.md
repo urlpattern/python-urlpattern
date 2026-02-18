@@ -62,9 +62,9 @@ print(result["pathname"]["groups"]["id"])  # output: 4163
 ```py
 from urlpattern import URLPattern
 
-pattern = URLPattern({"pathname": "/admin/*"}, "https://example.com")
-print(pattern.test({"pathname": "/admin/main/"}, "https://example.com"))  # output: True
-print(pattern.test("/admin/main/", "https://example.com"))  # output: True
+pattern = URLPattern("/test", "https://example.com")
+print(pattern.test("/test", "https://example.com"))  # output: True
+print(pattern.test({"pathname": "/test", "baseURL": "https://example.com"}))  # output: True
 ```
 
 ### `ignoreCase`
