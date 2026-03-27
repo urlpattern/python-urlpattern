@@ -252,14 +252,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "python-urlpattern"
-version = "0.1.10"
-dependencies = [
- "pyo3",
- "urlpattern",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -393,6 +385,14 @@ dependencies = [
  "idna",
  "percent-encoding",
  "serde",
+]
+
+[[package]]
+name = "urlpattern"
+version = "0.1.10"
+dependencies = [
+ "pyo3",
+ "urlpattern 0.6.0",
 ]
 
 [[package]]

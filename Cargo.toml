@@ -1,5 +1,5 @@
 [package]
-name = "python-urlpattern"
+name = "urlpattern"
 version = "0.1.10"
 authors = ["방성범 (Bang Seongbeom) <bangseongbeom@gmail.com>"]
 edition = "2024"
