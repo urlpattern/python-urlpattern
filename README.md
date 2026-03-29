@@ -125,3 +125,9 @@ with make_server("", 8000, app) as httpd:
 Due to limitations in the dependency [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern), it may not support all features specified in [the standard](https://urlpattern.spec.whatwg.org/).
 
 Check `pytest.skip` in [`tests/test_lib.py`](https://github.com/urlpattern/python-urlpattern/blob/main/tests/test_lib.py).
+
+## Why camelCase?
+
+In this library, some names such as `baseURL` and `hasRegExpGroups` do not use snake_case.
+
+Like [xml.dom](https://docs.python.org/3/library/xml.dom.html), Python wrappers around web standards typically preserve the original camelCase rather than converting names to snake_case. This library follows that convention as well.
