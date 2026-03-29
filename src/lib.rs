@@ -196,8 +196,8 @@ impl UrlPattern {
         Ok(self.0.hash())
     }
 
-    #[getter]
-    pub fn hasRegExpGroups(&self) -> PyResult<bool> {
+    #[getter(hasRegExpGroups)]
+    pub fn has_regexp_groups(&self) -> PyResult<bool> {
         Ok(self.0.has_regexp_groups())
     }
 }
