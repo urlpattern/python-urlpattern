@@ -157,47 +157,47 @@ impl UrlPattern {
     }
 
     #[getter]
-    pub fn get_protocol(&self) -> PyResult<&str> {
+    pub fn protocol(&self) -> PyResult<&str> {
         Ok(self.0.protocol())
     }
 
     #[getter]
-    pub fn get_username(&self) -> PyResult<&str> {
+    pub fn username(&self) -> PyResult<&str> {
         Ok(self.0.username())
     }
 
     #[getter]
-    pub fn get_password(&self) -> PyResult<&str> {
+    pub fn password(&self) -> PyResult<&str> {
         Ok(self.0.password())
     }
 
     #[getter]
-    pub fn get_hostname(&self) -> PyResult<&str> {
+    pub fn hostname(&self) -> PyResult<&str> {
         Ok(self.0.hostname())
     }
 
     #[getter]
-    pub fn get_port(&self) -> PyResult<&str> {
+    pub fn port(&self) -> PyResult<&str> {
         Ok(self.0.port())
     }
 
     #[getter]
-    pub fn get_pathname(&self) -> PyResult<&str> {
+    pub fn pathname(&self) -> PyResult<&str> {
         Ok(self.0.pathname())
     }
 
     #[getter]
-    pub fn get_search(&self) -> PyResult<&str> {
+    pub fn search(&self) -> PyResult<&str> {
         Ok(self.0.search())
     }
 
     #[getter]
-    pub fn get_hash(&self) -> PyResult<&str> {
+    pub fn hash(&self) -> PyResult<&str> {
         Ok(self.0.hash())
     }
 
     #[getter]
-    pub fn get_hasRegExpGroups(&self) -> PyResult<bool> {
+    pub fn hasRegExpGroups(&self) -> PyResult<bool> {
         Ok(self.0.has_regexp_groups())
     }
 }
