@@ -76,6 +76,7 @@ impl UrlPattern {
         dict.set_item("pathname", self.0.pathname()).unwrap();
         dict.set_item("search", self.0.search()).unwrap();
         dict.set_item("hash", self.0.hash()).unwrap();
+        dict.set_item("hasRegExpGroups", self.0.has_regexp_groups()).unwrap();
         format!("URLPattern({})", dict)
     }
 
@@ -193,6 +194,11 @@ impl UrlPattern {
     #[getter]
     pub fn get_hash(&self) -> PyResult<&str> {
         Ok(self.0.hash())
+    }
+
+    #[getter]
+    pub fn get_hasRegExpGroups(&self) -> PyResult<bool> {
+        Ok(self.0.has_regexp_groups())
     }
 }
 
