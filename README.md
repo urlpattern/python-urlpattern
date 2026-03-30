@@ -130,4 +130,4 @@ Check `pytest.skip` in [`tests/test_lib.py`](https://github.com/urlpattern/pytho
 
 In this library, some names such as `baseURL` and `hasRegExpGroups` do not use snake_case.
 
-Like [xml.dom](https://docs.python.org/3/library/xml.dom.html), Python wrappers around web standards typically preserve the original camelCase rather than converting names to snake_case. This library follows that convention as well.
+Like [`xml.dom`](https://docs.python.org/3/library/xml.dom.html), Python wrappers around web standards typically preserve the original camelCase rather than converting names to snake_case. This library follows that convention as well.
