@@ -22,6 +22,12 @@ impl UrlPattern {
         baseURL: Option<&Bound<'_, PyAny>>,
         options: Option<&Bound<'_, PyDict>>,
     ) -> PyResult<Self> {
+        let string_or_init_input = match input {
+            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
+            None => deno_urlpattern::quirks::StringOrInit::Init(
+                deno_urlpattern::quirks::UrlPatternInit::default(),
+            ),
+        };
         let (base_url, options) = match baseURL {
             Some(value) => {
                 if let Ok(options_dict) = value.cast::<PyDict>() {
@@ -33,13 +39,6 @@ impl UrlPattern {
                 }
             }
             None => (None, options),
-        };
-
-        let string_or_init_input = match input {
-            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => deno_urlpattern::quirks::StringOrInit::Init(
-                deno_urlpattern::quirks::UrlPatternInit::default(),
-            ),
         };
         let options = if let Some(options) = options {
             deno_urlpattern::UrlPatternOptions {
