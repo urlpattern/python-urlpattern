@@ -17,7 +17,7 @@ struct UrlPattern(deno_urlpattern::UrlPattern);
 impl UrlPattern {
     #[new]
     #[pyo3(signature = (input=None, baseURL=None, options=None))]
-    pub fn new(
+    fn new(
         input: Option<UrlPatternInput>,
         baseURL: Option<&Bound<'_, PyAny>>,
         options: Option<&Bound<'_, PyDict>>,
@@ -66,7 +66,7 @@ impl UrlPattern {
         ))
     }
 
-    pub fn __repr__(&self, py: Python) -> String {
+    fn __repr__(&self, py: Python) -> String {
         let dict = PyDict::new(py);
         dict.set_item("protocol", self.0.protocol()).unwrap();
         dict.set_item("username", self.0.username()).unwrap();
@@ -81,7 +81,7 @@ impl UrlPattern {
     }
 
     #[pyo3(signature = (input=None, baseURL=None))]
-    pub fn test(&self, input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
+    fn test(&self, input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
         let string_or_init_input = match input {
             Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
             None => deno_urlpattern::quirks::StringOrInit::Init(
@@ -98,7 +98,7 @@ impl UrlPattern {
     }
 
     #[pyo3(signature = (input=None, baseURL=None))]
-    pub fn exec(
+    fn exec(
         &self,
         input: Option<UrlPatternInput>,
         baseURL: Option<&str>,
@@ -157,53 +157,53 @@ impl UrlPattern {
     }
 
     #[getter]
-    pub fn protocol(&self) -> PyResult<&str> {
+    fn protocol(&self) -> PyResult<&str> {
         Ok(self.0.protocol())
     }
 
     #[getter]
-    pub fn username(&self) -> PyResult<&str> {
+    fn username(&self) -> PyResult<&str> {
         Ok(self.0.username())
     }
 
     #[getter]
-    pub fn password(&self) -> PyResult<&str> {
+    fn password(&self) -> PyResult<&str> {
         Ok(self.0.password())
     }
 
     #[getter]
-    pub fn hostname(&self) -> PyResult<&str> {
+    fn hostname(&self) -> PyResult<&str> {
         Ok(self.0.hostname())
     }
 
     #[getter]
-    pub fn port(&self) -> PyResult<&str> {
+    fn port(&self) -> PyResult<&str> {
         Ok(self.0.port())
     }
 
     #[getter]
-    pub fn pathname(&self) -> PyResult<&str> {
+    fn pathname(&self) -> PyResult<&str> {
         Ok(self.0.pathname())
     }
 
     #[getter]
-    pub fn search(&self) -> PyResult<&str> {
+    fn search(&self) -> PyResult<&str> {
         Ok(self.0.search())
     }
 
     #[getter]
-    pub fn hash(&self) -> PyResult<&str> {
+    fn hash(&self) -> PyResult<&str> {
         Ok(self.0.hash())
     }
 
     #[getter(hasRegExpGroups)]
-    pub fn has_regexp_groups(&self) -> PyResult<bool> {
+    fn has_regexp_groups(&self) -> PyResult<bool> {
         Ok(self.0.has_regexp_groups())
     }
 }
 
 #[derive(FromPyObject)]
-pub enum UrlPatternInput<'py> {
+enum UrlPatternInput<'py> {
     String(String),
     Init(Bound<'py, PyDict>),
 }
@@ -260,19 +260,19 @@ impl<'py> TryFrom<UrlPatternInput<'py>> for deno_urlpattern::quirks::StringOrIni
     }
 }
 
-pub struct UrlPatternResult {
-    pub inputs: (
+struct UrlPatternResult {
+    inputs: (
         deno_urlpattern::quirks::StringOrInit<'static>,
         Option<String>,
     ),
-    pub protocol: UrlPatternComponentResult,
-    pub username: UrlPatternComponentResult,
-    pub password: UrlPatternComponentResult,
-    pub hostname: UrlPatternComponentResult,
-    pub port: UrlPatternComponentResult,
-    pub pathname: UrlPatternComponentResult,
-    pub search: UrlPatternComponentResult,
-    pub hash: UrlPatternComponentResult,
+    protocol: UrlPatternComponentResult,
+    username: UrlPatternComponentResult,
+    password: UrlPatternComponentResult,
+    hostname: UrlPatternComponentResult,
+    port: UrlPatternComponentResult,
+    pathname: UrlPatternComponentResult,
+    search: UrlPatternComponentResult,
+    hash: UrlPatternComponentResult,
 }
 
 impl<'py> IntoPyObject<'py> for UrlPatternResult {
@@ -343,12 +343,12 @@ impl<'py> IntoPyObject<'py> for UrlPatternResult {
 }
 
 #[derive(IntoPyObject, IntoPyObjectRef)]
-pub struct UrlPatternComponentResult {
+struct UrlPatternComponentResult {
     input: String,
     groups: HashMap<String, Option<String>>,
 }
 
-pub struct Error(deno_urlpattern::Error);
+struct Error(deno_urlpattern::Error);
 
 impl From<Error> for PyErr {
     fn from(error: Error) -> Self {
