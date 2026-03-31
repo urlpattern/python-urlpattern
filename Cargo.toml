@@ -1,6 +1,6 @@
 [package]
 name = "urlpattern"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["방성범 (Bang Seongbeom) <bangseongbeom@gmail.com>"]
 edition = "2024"
 description = "An implementation of the URL Pattern Standard for Python written in Rust."
