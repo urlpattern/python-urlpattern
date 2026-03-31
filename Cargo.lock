@@ -392,6 +392,8 @@ name = "urlpattern"
 version = "0.2.0"
 dependencies = [
  "pyo3",
+ "regex",
+ "url",
  "urlpattern 0.6.0",
 ]
 

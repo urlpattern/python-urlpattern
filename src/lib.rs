@@ -1,14 +1,12 @@
 #![allow(non_snake_case)]
 
-use std::borrow::Cow;
-use std::collections::HashMap;
-
 use pyo3::{
     BoundObject,
-    exceptions::PyValueError,
+    exceptions::{PyTypeError, PyValueError},
     prelude::*,
-    types::{PyDict, PyList},
+    types::{PyDict, PyList, PyString},
 };
+use std::collections::HashMap;
 
 #[pyclass(name = "URLPattern")]
 struct UrlPattern(deno_urlpattern::UrlPattern);
@@ -22,12 +20,6 @@ impl UrlPattern {
         baseURL: Option<&Bound<'_, PyAny>>,
         options: Option<&Bound<'_, PyDict>>,
     ) -> PyResult<Self> {
-        let string_or_init_input = match input {
-            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => deno_urlpattern::quirks::StringOrInit::Init(
-                deno_urlpattern::quirks::UrlPatternInit::default(),
-            ),
-        };
         let (base_url, options) = match baseURL {
             Some(value) => {
                 if let Ok(options_dict) = value.cast::<PyDict>() {
@@ -35,10 +27,80 @@ impl UrlPattern {
                 } else if value.is_none() {
                     (None, options)
                 } else {
-                    (Some(value.extract::<String>()?), options)
+                    (
+                        Some(
+                            value
+                                .extract::<String>()?
+                                .parse::<url::Url>()
+                                .map_err(deno_urlpattern::Error::Url)
+                                .map_err(Error)?,
+                        ),
+                        options,
+                    )
                 }
             }
             None => (None, options),
+        };
+
+        if let Some(UrlPatternInput::Init(_)) = input {
+            if let Some(_) = base_url {
+                return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
+            }
+        }
+
+        let init: deno_urlpattern::UrlPatternInit = match input {
+            Some(input) => match input {
+                UrlPatternInput::String(input) => {
+                    deno_urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
+                        input.as_str(),
+                        base_url,
+                    )
+                    .map_err(Error)?
+                }
+                UrlPatternInput::Init(init) => deno_urlpattern::UrlPatternInit {
+                    protocol: init
+                        .get_item("protocol")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    username: init
+                        .get_item("username")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    password: init
+                        .get_item("password")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hostname: init
+                        .get_item("hostname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    port: init
+                        .get_item("port")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    pathname: init
+                        .get_item("pathname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    search: init
+                        .get_item("search")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hash: init
+                        .get_item("hash")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    base_url: init
+                        .get_item("baseURL")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?
+                        .map(|v| v.parse::<url::Url>())
+                        .transpose()
+                        .map_err(deno_urlpattern::Error::Url)
+                        .map_err(Error)?,
+                },
+            },
+            None => deno_urlpattern::UrlPatternInit::default(),
         };
         let options = if let Some(options) = options {
             deno_urlpattern::UrlPatternOptions {
@@ -53,15 +115,7 @@ impl UrlPattern {
             deno_urlpattern::UrlPatternOptions::default()
         };
         Ok(UrlPattern(
-            <deno_urlpattern::UrlPattern>::parse(
-                deno_urlpattern::quirks::process_construct_pattern_input(
-                    string_or_init_input,
-                    base_url.as_deref(),
-                )
-                .map_err(Error)?,
-                options,
-            )
-            .map_err(Error)?,
+            deno_urlpattern::UrlPattern::parse(init, options).map_err(Error)?,
         ))
     }
 
@@ -82,45 +136,189 @@ impl UrlPattern {
 
     #[pyo3(signature = (input=None, baseURL=None))]
     fn test(&self, input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
-        let string_or_init_input = match input {
-            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => deno_urlpattern::quirks::StringOrInit::Init(
-                deno_urlpattern::quirks::UrlPatternInit::default(),
+        let input: deno_urlpattern::UrlPatternMatchInput = match input {
+            Some(input) => match input {
+                UrlPatternInput::String(input) => match baseURL {
+                    Some(base_url) => {
+                        let base_url = match url::Url::parse(base_url) {
+                            Ok(url) => url,
+                            Err(_) => return Ok(false),
+                        };
+                        deno_urlpattern::UrlPatternMatchInput::Url(
+                            match url::Url::options()
+                                .base_url(Some(&base_url))
+                                .parse(input.as_ref())
+                            {
+                                Ok(url) => url,
+                                Err(_) => return Ok(false),
+                            },
+                        )
+                    }
+                    None => deno_urlpattern::UrlPatternMatchInput::Url(
+                        match input.parse::<url::Url>() {
+                            Ok(url) => url,
+                            Err(_) => return Ok(false),
+                        },
+                    ),
+                },
+                UrlPatternInput::Init(init) => {
+                    if let Some(_) = baseURL {
+                        return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
+                    }
+
+                    deno_urlpattern::UrlPatternMatchInput::Init(deno_urlpattern::UrlPatternInit {
+                        protocol: init
+                            .get_item("protocol")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        username: init
+                            .get_item("username")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        password: init
+                            .get_item("password")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        hostname: init
+                            .get_item("hostname")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        port: init
+                            .get_item("port")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        pathname: init
+                            .get_item("pathname")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        search: init
+                            .get_item("search")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        hash: init
+                            .get_item("hash")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        base_url: init
+                            .get_item("baseURL")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?
+                            .map(|v| v.parse::<url::Url>())
+                            .transpose()
+                            .map_err(deno_urlpattern::Error::Url)
+                            .map_err(Error)?,
+                    })
+                }
+            },
+            None => deno_urlpattern::UrlPatternMatchInput::Init(
+                deno_urlpattern::UrlPatternInit::default(),
             ),
         };
-        let Some((match_input, _)) =
-            deno_urlpattern::quirks::process_match_input(string_or_init_input, baseURL)
-                .map_err(Error)?
-        else {
-            return Ok(false);
-        };
-        Ok(self.0.test(match_input).map_err(Error)?)
+        Ok(self.0.test(input).map_err(Error)?)
     }
 
     #[pyo3(signature = (input=None, baseURL=None))]
-    fn exec(
+    fn exec<'py>(
         &self,
-        input: Option<UrlPatternInput>,
-        baseURL: Option<&str>,
-    ) -> PyResult<Option<UrlPatternResult>> {
-        let string_or_init_input = match input {
-            Some(input) => deno_urlpattern::quirks::StringOrInit::try_from(input)?,
-            None => deno_urlpattern::quirks::StringOrInit::Init(
-                deno_urlpattern::quirks::UrlPatternInit::default(),
+        py: Python<'py>,
+        input: Option<&Bound<'py, PyAny>>,
+        baseURL: Option<&Bound<'py, PyString>>,
+    ) -> PyResult<Option<UrlPatternResult<'py>>> {
+        let urlpattern_input: Option<UrlPatternInput> = input.map(|i| i.extract()).transpose()?;
+        let input: deno_urlpattern::UrlPatternMatchInput = match &urlpattern_input {
+            Some(input) => match input {
+                UrlPatternInput::String(input) => match baseURL {
+                    Some(base_url) => {
+                        let base_url = match url::Url::parse(base_url.to_str()?) {
+                            Ok(url) => url,
+                            Err(_) => return Ok(None),
+                        };
+                        deno_urlpattern::UrlPatternMatchInput::Url(
+                            match url::Url::options()
+                                .base_url(Some(&base_url))
+                                .parse(input.as_ref())
+                            {
+                                Ok(url) => url,
+                                Err(_) => return Ok(None),
+                            },
+                        )
+                    }
+                    None => deno_urlpattern::UrlPatternMatchInput::Url(
+                        match input.parse::<url::Url>() {
+                            Ok(url) => url,
+                            Err(_) => return Ok(None),
+                        },
+                    ),
+                },
+                UrlPatternInput::Init(init) => {
+                    if let Some(_) = baseURL {
+                        return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
+                    }
+
+                    deno_urlpattern::UrlPatternMatchInput::Init(deno_urlpattern::UrlPatternInit {
+                        protocol: init
+                            .get_item("protocol")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        username: init
+                            .get_item("username")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        password: init
+                            .get_item("password")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        hostname: init
+                            .get_item("hostname")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        port: init
+                            .get_item("port")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        pathname: init
+                            .get_item("pathname")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        search: init
+                            .get_item("search")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        hash: init
+                            .get_item("hash")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?,
+                        base_url: init
+                            .get_item("baseURL")?
+                            .map(|v| v.extract::<String>())
+                            .transpose()?
+                            .map(|v| v.parse::<url::Url>())
+                            .transpose()
+                            .map_err(deno_urlpattern::Error::Url)
+                            .map_err(Error)?,
+                    })
+                }
+            },
+            None => deno_urlpattern::UrlPatternMatchInput::Init(
+                deno_urlpattern::UrlPatternInit::default(),
             ),
         };
-        let Some((match_input, inputs)) =
-            deno_urlpattern::quirks::process_match_input(string_or_init_input, baseURL)
-                .map_err(Error)?
-        else {
-            return Ok(None);
-        };
-        let Some(result) = self.0.exec(match_input).map_err(Error)? else {
+
+        let Some(result) = self.0.exec(input).map_err(Error)? else {
             return Ok(None);
         };
 
         Ok(Some(UrlPatternResult {
-            inputs,
+            inputs: {
+                let mut vec = Vec::new();
+                vec.push(
+                    urlpattern_input.unwrap_or(UrlPatternInput::Init(PyDict::new(py).into_bound())),
+                );
+                if let Some(base_url) = baseURL {
+                    vec.push(UrlPatternInput::String(base_url.to_string()));
+                }
+                vec
+            },
             protocol: UrlPatternComponentResult {
                 input: result.protocol.input,
                 groups: result.protocol.groups,
@@ -208,63 +406,8 @@ enum UrlPatternInput<'py> {
     Init(Bound<'py, PyDict>),
 }
 
-impl<'py> TryFrom<UrlPatternInput<'py>> for deno_urlpattern::quirks::StringOrInit<'static> {
-    type Error = pyo3::PyErr;
-
-    fn try_from(input: UrlPatternInput<'py>) -> Result<Self, Self::Error> {
-        Ok(match input {
-            UrlPatternInput::String(pattern) => {
-                deno_urlpattern::quirks::StringOrInit::String(Cow::Owned(pattern))
-            }
-            UrlPatternInput::Init(init) => deno_urlpattern::quirks::StringOrInit::Init(
-                deno_urlpattern::quirks::UrlPatternInit {
-                    protocol: init
-                        .get_item("protocol")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    username: init
-                        .get_item("username")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    password: init
-                        .get_item("password")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    hostname: init
-                        .get_item("hostname")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    port: init
-                        .get_item("port")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    pathname: init
-                        .get_item("pathname")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    search: init
-                        .get_item("search")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    hash: init
-                        .get_item("hash")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    base_url: init
-                        .get_item("baseURL")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                },
-            ),
-        })
-    }
-}
-
-struct UrlPatternResult {
-    inputs: (
-        deno_urlpattern::quirks::StringOrInit<'static>,
-        Option<String>,
-    ),
+struct UrlPatternResult<'py> {
+    inputs: Vec<UrlPatternInput<'py>>,
     protocol: UrlPatternComponentResult,
     username: UrlPatternComponentResult,
     password: UrlPatternComponentResult,
@@ -275,7 +418,7 @@ struct UrlPatternResult {
     hash: UrlPatternComponentResult,
 }
 
-impl<'py> IntoPyObject<'py> for UrlPatternResult {
+impl<'py> IntoPyObject<'py> for UrlPatternResult<'py> {
     type Target = PyDict;
     type Output = Bound<'py, Self::Target>;
     type Error = std::convert::Infallible;
@@ -283,52 +426,19 @@ impl<'py> IntoPyObject<'py> for UrlPatternResult {
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         let dict = PyDict::new(py);
 
-        let (string_or_init, base_url) = self.inputs;
-        let list = PyList::empty(py);
-
-        match string_or_init {
-            deno_urlpattern::quirks::StringOrInit::String(string) => {
-                list.append(string.into_owned()).unwrap();
-            }
-            deno_urlpattern::quirks::StringOrInit::Init(init) => {
-                let init_dict = PyDict::new(py);
-                if let Some(protocol) = init.protocol {
-                    init_dict.set_item("protocol", protocol).unwrap();
+        let inputs = PyList::empty(py);
+        for input in self.inputs {
+            match input {
+                UrlPatternInput::String(string) => {
+                    inputs.append(string).unwrap();
                 }
-                if let Some(username) = init.username {
-                    init_dict.set_item("username", username).unwrap();
+                UrlPatternInput::Init(init) => {
+                    inputs.append(init).unwrap();
                 }
-                if let Some(password) = init.password {
-                    init_dict.set_item("password", password).unwrap();
-                }
-                if let Some(hostname) = init.hostname {
-                    init_dict.set_item("hostname", hostname).unwrap();
-                }
-                if let Some(port) = init.port {
-                    init_dict.set_item("port", port).unwrap();
-                }
-                if let Some(pathname) = init.pathname {
-                    init_dict.set_item("pathname", pathname).unwrap();
-                }
-                if let Some(search) = init.search {
-                    init_dict.set_item("search", search).unwrap();
-                }
-                if let Some(hash) = init.hash {
-                    init_dict.set_item("hash", hash).unwrap();
-                }
-                if let Some(base_url) = init.base_url {
-                    init_dict.set_item("baseURL", base_url).unwrap();
-                }
-                list.append(init_dict).unwrap();
             }
         }
 
-        if let Some(base_url) = base_url {
-            list.append(base_url).unwrap();
-        }
-
-        dict.set_item("inputs", list).unwrap();
-
+        dict.set_item("inputs", inputs).unwrap();
         dict.set_item("protocol", self.protocol).unwrap();
         dict.set_item("username", self.username).unwrap();
         dict.set_item("password", self.password).unwrap();
@@ -337,7 +447,6 @@ impl<'py> IntoPyObject<'py> for UrlPatternResult {
         dict.set_item("pathname", self.pathname).unwrap();
         dict.set_item("search", self.search).unwrap();
         dict.set_item("hash", self.hash).unwrap();
-
         Ok(dict.into_bound())
     }
 }

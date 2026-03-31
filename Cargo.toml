@@ -14,5 +14,7 @@ categories = ["web-programming"]
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.28.2"
 deno-urlpattern = { version = "0.6.0", package = "urlpattern" }
+pyo3 = "0.28.2"
+regex = "1.12.3"
+url = "2.5.8"
