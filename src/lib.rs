@@ -114,7 +114,7 @@ impl UrlPattern {
         } else {
             deno_urlpattern::UrlPatternOptions::default()
         };
-        Ok(UrlPattern(
+        Ok(Self(
             deno_urlpattern::UrlPattern::parse(init, options).map_err(Error)?,
         ))
     }
