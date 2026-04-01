@@ -33,7 +33,8 @@ def test(entry):
     except UnicodeEncodeError as e:
         if e.reason == "surrogates not allowed":
             pytest.skip("unsupported in the implementation")
-        raise
+        else:
+            raise
 
     if "expected_obj" in entry:
         for key in entry["expected_obj"]:
