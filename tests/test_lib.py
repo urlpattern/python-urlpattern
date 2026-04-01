@@ -41,22 +41,27 @@ def test(entry):
 
     if entry.get("expected_match") == "error":
         with pytest.raises(Exception):
+            pattern.test(*entry["inputs"])
+
+        with pytest.raises(Exception):
             pattern.exec(*entry["inputs"])
+
         return
 
-    if isinstance(entry.get("expected_match"), dict):
-        result = pattern.exec(*entry["inputs"])
+    elif isinstance(entry.get("expected_match"), dict):
+        assert pattern.test(*entry["inputs"])
 
+        result = pattern.exec(*entry["inputs"])
         for key in entry["expected_match"]:
             assert result[key] == entry["expected_match"][key]
 
     else:
-        result = pattern.exec(*entry["inputs"])
-        assert result is None
+        assert not pattern.test(*entry["inputs"])
+
+        assert pattern.exec(*entry["inputs"]) is None
 
     if "exactly_empty_components" in entry:
         result = pattern.exec(*entry["inputs"])
-
         for component in entry["exactly_empty_components"]:
             if result:
                 assert result[component]["groups"] == {}
