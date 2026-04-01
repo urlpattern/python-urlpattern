@@ -20,7 +20,9 @@ impl UrlPattern {
         baseURL: Option<&Bound<'_, PyAny>>,
         options: Option<&Bound<'_, PyDict>>,
     ) -> PyResult<Self> {
-        let (base_url, options) = match baseURL {
+        let base_url = baseURL;
+
+        let (base_url, options) = match base_url {
             Some(value) => {
                 if let Ok(options_dict) = value.cast::<PyDict>() {
                     (None, Some(options_dict))
@@ -134,9 +136,11 @@ impl UrlPattern {
 
     #[pyo3(signature = (input=None, baseURL=None))]
     fn test(&self, input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
+        let base_url = baseURL;
+
         let input: ::urlpattern::UrlPatternMatchInput = match input {
             Some(input) => match input {
-                UrlPatternInput::String(input) => match baseURL {
+                UrlPatternInput::String(input) => match base_url {
                     Some(base_url) => {
                         let base_url = match url::Url::parse(base_url) {
                             Ok(url) => url,
@@ -160,7 +164,7 @@ impl UrlPattern {
                     }
                 },
                 UrlPatternInput::Init(init) => {
-                    if baseURL.is_some() {
+                    if base_url.is_some() {
                         return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
                     }
 
@@ -222,10 +226,12 @@ impl UrlPattern {
         input: Option<&Bound<'py, PyAny>>,
         baseURL: Option<&Bound<'py, PyString>>,
     ) -> PyResult<Option<UrlPatternResult<'py>>> {
+        let base_url = baseURL;
+
         let urlpattern_input: Option<UrlPatternInput> = input.map(|i| i.extract()).transpose()?;
         let input: ::urlpattern::UrlPatternMatchInput = match &urlpattern_input {
             Some(input) => match input {
-                UrlPatternInput::String(input) => match baseURL {
+                UrlPatternInput::String(input) => match base_url {
                     Some(base_url) => {
                         let base_url = match url::Url::parse(base_url.to_str()?) {
                             Ok(url) => url,
@@ -312,7 +318,7 @@ impl UrlPattern {
                 vec.push(
                     urlpattern_input.unwrap_or(UrlPatternInput::Init(PyDict::new(py).into_bound())),
                 );
-                if let Some(base_url) = baseURL {
+                if let Some(base_url) = base_url {
                     vec.push(UrlPatternInput::String(base_url.to_string()));
                 }
                 vec
