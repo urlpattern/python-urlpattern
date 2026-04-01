@@ -154,12 +154,12 @@ impl UrlPattern {
                             },
                         )
                     }
-                    None => ::urlpattern::UrlPatternMatchInput::Url(
-                        match input.parse::<url::Url>() {
+                    None => {
+                        ::urlpattern::UrlPatternMatchInput::Url(match input.parse::<url::Url>() {
                             Ok(url) => url,
                             Err(_) => return Ok(false),
-                        },
-                    ),
+                        })
+                    }
                 },
                 UrlPatternInput::Init(init) => {
                     if let Some(_) = baseURL {
@@ -210,9 +210,9 @@ impl UrlPattern {
                     })
                 }
             },
-            None => ::urlpattern::UrlPatternMatchInput::Init(
-                ::urlpattern::UrlPatternInit::default(),
-            ),
+            None => {
+                ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit::default())
+            }
         };
         Ok(self.0.test(input).map_err(Error)?)
     }
@@ -243,12 +243,12 @@ impl UrlPattern {
                             },
                         )
                     }
-                    None => ::urlpattern::UrlPatternMatchInput::Url(
-                        match input.parse::<url::Url>() {
+                    None => {
+                        ::urlpattern::UrlPatternMatchInput::Url(match input.parse::<url::Url>() {
                             Ok(url) => url,
                             Err(_) => return Ok(None),
-                        },
-                    ),
+                        })
+                    }
                 },
                 UrlPatternInput::Init(init) => {
                     if let Some(_) = baseURL {
@@ -299,9 +299,9 @@ impl UrlPattern {
                     })
                 }
             },
-            None => ::urlpattern::UrlPatternMatchInput::Init(
-                ::urlpattern::UrlPatternInit::default(),
-            ),
+            None => {
+                ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit::default())
+            }
         };
 
         let Some(result) = self.0.exec(input).map_err(Error)? else {
