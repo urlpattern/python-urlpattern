@@ -248,7 +248,7 @@ impl UrlPattern {
                 }),
             },
             Some(UrlPatternInput::Init(init)) => {
-                if baseURL.is_some() {
+                if base_url.is_some() {
                     return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
                 }
 
