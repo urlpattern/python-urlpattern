@@ -9,7 +9,7 @@ use pyo3::{
 use std::collections::HashMap;
 
 #[pyclass(name = "URLPattern")]
-struct UrlPattern(deno_urlpattern::UrlPattern);
+struct UrlPattern(::urlpattern::UrlPattern);
 
 #[pymethods]
 impl UrlPattern {
@@ -32,7 +32,7 @@ impl UrlPattern {
                             value
                                 .extract::<String>()?
                                 .parse::<url::Url>()
-                                .map_err(deno_urlpattern::Error::Url)
+                                .map_err(::urlpattern::Error::Url)
                                 .map_err(Error)?,
                         ),
                         options,
@@ -48,16 +48,16 @@ impl UrlPattern {
             }
         }
 
-        let init: deno_urlpattern::UrlPatternInit = match input {
+        let init: ::urlpattern::UrlPatternInit = match input {
             Some(input) => match input {
                 UrlPatternInput::String(input) => {
-                    deno_urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
+                    ::urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
                         input.as_str(),
                         base_url,
                     )
                     .map_err(Error)?
                 }
-                UrlPatternInput::Init(init) => deno_urlpattern::UrlPatternInit {
+                UrlPatternInput::Init(init) => ::urlpattern::UrlPatternInit {
                     protocol: init
                         .get_item("protocol")?
                         .map(|v| v.extract::<String>())
@@ -96,26 +96,26 @@ impl UrlPattern {
                         .transpose()?
                         .map(|v| v.parse::<url::Url>())
                         .transpose()
-                        .map_err(deno_urlpattern::Error::Url)
+                        .map_err(::urlpattern::Error::Url)
                         .map_err(Error)?,
                 },
             },
-            None => deno_urlpattern::UrlPatternInit::default(),
+            None => ::urlpattern::UrlPatternInit::default(),
         };
         let options = if let Some(options) = options {
-            deno_urlpattern::UrlPatternOptions {
+            ::urlpattern::UrlPatternOptions {
                 ignore_case: options
                     .get_item("ignoreCase")?
                     .map(|v| v.extract::<bool>())
                     .transpose()?
                     .unwrap_or(false),
-                ..deno_urlpattern::UrlPatternOptions::default()
+                ..::urlpattern::UrlPatternOptions::default()
             }
         } else {
-            deno_urlpattern::UrlPatternOptions::default()
+            ::urlpattern::UrlPatternOptions::default()
         };
         Ok(Self(
-            deno_urlpattern::UrlPattern::parse(init, options).map_err(Error)?,
+            ::urlpattern::UrlPattern::parse(init, options).map_err(Error)?,
         ))
     }
 
@@ -136,7 +136,7 @@ impl UrlPattern {
 
     #[pyo3(signature = (input=None, baseURL=None))]
     fn test(&self, input: Option<UrlPatternInput>, baseURL: Option<&str>) -> PyResult<bool> {
-        let input: deno_urlpattern::UrlPatternMatchInput = match input {
+        let input: ::urlpattern::UrlPatternMatchInput = match input {
             Some(input) => match input {
                 UrlPatternInput::String(input) => match baseURL {
                     Some(base_url) => {
@@ -144,7 +144,7 @@ impl UrlPattern {
                             Ok(url) => url,
                             Err(_) => return Ok(false),
                         };
-                        deno_urlpattern::UrlPatternMatchInput::Url(
+                        ::urlpattern::UrlPatternMatchInput::Url(
                             match url::Url::options()
                                 .base_url(Some(&base_url))
                                 .parse(input.as_ref())
@@ -154,7 +154,7 @@ impl UrlPattern {
                             },
                         )
                     }
-                    None => deno_urlpattern::UrlPatternMatchInput::Url(
+                    None => ::urlpattern::UrlPatternMatchInput::Url(
                         match input.parse::<url::Url>() {
                             Ok(url) => url,
                             Err(_) => return Ok(false),
@@ -166,7 +166,7 @@ impl UrlPattern {
                         return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
                     }
 
-                    deno_urlpattern::UrlPatternMatchInput::Init(deno_urlpattern::UrlPatternInit {
+                    ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit {
                         protocol: init
                             .get_item("protocol")?
                             .map(|v| v.extract::<String>())
@@ -205,13 +205,13 @@ impl UrlPattern {
                             .transpose()?
                             .map(|v| v.parse::<url::Url>())
                             .transpose()
-                            .map_err(deno_urlpattern::Error::Url)
+                            .map_err(::urlpattern::Error::Url)
                             .map_err(Error)?,
                     })
                 }
             },
-            None => deno_urlpattern::UrlPatternMatchInput::Init(
-                deno_urlpattern::UrlPatternInit::default(),
+            None => ::urlpattern::UrlPatternMatchInput::Init(
+                ::urlpattern::UrlPatternInit::default(),
             ),
         };
         Ok(self.0.test(input).map_err(Error)?)
@@ -225,7 +225,7 @@ impl UrlPattern {
         baseURL: Option<&Bound<'py, PyString>>,
     ) -> PyResult<Option<UrlPatternResult<'py>>> {
         let urlpattern_input: Option<UrlPatternInput> = input.map(|i| i.extract()).transpose()?;
-        let input: deno_urlpattern::UrlPatternMatchInput = match &urlpattern_input {
+        let input: ::urlpattern::UrlPatternMatchInput = match &urlpattern_input {
             Some(input) => match input {
                 UrlPatternInput::String(input) => match baseURL {
                     Some(base_url) => {
@@ -233,7 +233,7 @@ impl UrlPattern {
                             Ok(url) => url,
                             Err(_) => return Ok(None),
                         };
-                        deno_urlpattern::UrlPatternMatchInput::Url(
+                        ::urlpattern::UrlPatternMatchInput::Url(
                             match url::Url::options()
                                 .base_url(Some(&base_url))
                                 .parse(input.as_ref())
@@ -243,7 +243,7 @@ impl UrlPattern {
                             },
                         )
                     }
-                    None => deno_urlpattern::UrlPatternMatchInput::Url(
+                    None => ::urlpattern::UrlPatternMatchInput::Url(
                         match input.parse::<url::Url>() {
                             Ok(url) => url,
                             Err(_) => return Ok(None),
@@ -255,7 +255,7 @@ impl UrlPattern {
                         return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
                     }
 
-                    deno_urlpattern::UrlPatternMatchInput::Init(deno_urlpattern::UrlPatternInit {
+                    ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit {
                         protocol: init
                             .get_item("protocol")?
                             .map(|v| v.extract::<String>())
@@ -294,13 +294,13 @@ impl UrlPattern {
                             .transpose()?
                             .map(|v| v.parse::<url::Url>())
                             .transpose()
-                            .map_err(deno_urlpattern::Error::Url)
+                            .map_err(::urlpattern::Error::Url)
                             .map_err(Error)?,
                     })
                 }
             },
-            None => deno_urlpattern::UrlPatternMatchInput::Init(
-                deno_urlpattern::UrlPatternInit::default(),
+            None => ::urlpattern::UrlPatternMatchInput::Init(
+                ::urlpattern::UrlPatternInit::default(),
             ),
         };
 
@@ -457,7 +457,7 @@ struct UrlPatternComponentResult {
     groups: HashMap<String, Option<String>>,
 }
 
-struct Error(deno_urlpattern::Error);
+struct Error(::urlpattern::Error);
 
 impl From<Error> for PyErr {
     fn from(error: Error) -> Self {
@@ -465,8 +465,8 @@ impl From<Error> for PyErr {
     }
 }
 
-impl From<deno_urlpattern::Error> for Error {
-    fn from(other: deno_urlpattern::Error) -> Self {
+impl From<::urlpattern::Error> for Error {
+    fn from(other: ::urlpattern::Error) -> Self {
         Self(other)
     }
 }
