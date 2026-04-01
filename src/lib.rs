@@ -44,6 +44,19 @@ impl UrlPattern {
             None => (None, options),
         };
 
+        let options = if let Some(options) = options {
+            ::urlpattern::UrlPatternOptions {
+                ignore_case: options
+                    .get_item("ignoreCase")?
+                    .map(|v| v.extract::<bool>())
+                    .transpose()?
+                    .unwrap_or(false),
+                ..::urlpattern::UrlPatternOptions::default()
+            }
+        } else {
+            ::urlpattern::UrlPatternOptions::default()
+        };
+
         let init: ::urlpattern::UrlPatternInit = match input {
             Some(UrlPatternInput::String(input)) => {
                 ::urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
@@ -102,18 +115,7 @@ impl UrlPattern {
             }
             None => ::urlpattern::UrlPatternInit::default(),
         };
-        let options = if let Some(options) = options {
-            ::urlpattern::UrlPatternOptions {
-                ignore_case: options
-                    .get_item("ignoreCase")?
-                    .map(|v| v.extract::<bool>())
-                    .transpose()?
-                    .unwrap_or(false),
-                ..::urlpattern::UrlPatternOptions::default()
-            }
-        } else {
-            ::urlpattern::UrlPatternOptions::default()
-        };
+
         Ok(Self(
             ::urlpattern::UrlPattern::parse(init, options).map_err(Error)?,
         ))
@@ -212,6 +214,7 @@ impl UrlPattern {
                 ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit::default())
             }
         };
+
         Ok(self.0.test(input).map_err(Error)?)
     }
 
