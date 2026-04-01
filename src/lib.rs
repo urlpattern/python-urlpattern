@@ -49,56 +49,54 @@ impl UrlPattern {
         }
 
         let init: ::urlpattern::UrlPatternInit = match input {
-            Some(input) => match input {
-                UrlPatternInput::String(input) => {
-                    ::urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
-                        input.as_str(),
-                        base_url,
-                    )
-                    .map_err(Error)?
-                }
-                UrlPatternInput::Init(init) => ::urlpattern::UrlPatternInit {
-                    protocol: init
-                        .get_item("protocol")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    username: init
-                        .get_item("username")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    password: init
-                        .get_item("password")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    hostname: init
-                        .get_item("hostname")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    port: init
-                        .get_item("port")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    pathname: init
-                        .get_item("pathname")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    search: init
-                        .get_item("search")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    hash: init
-                        .get_item("hash")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?,
-                    base_url: init
-                        .get_item("baseURL")?
-                        .map(|v| v.extract::<String>())
-                        .transpose()?
-                        .map(|v| v.parse::<url::Url>())
-                        .transpose()
-                        .map_err(::urlpattern::Error::Url)
-                        .map_err(Error)?,
-                },
+            Some(UrlPatternInput::String(input)) => {
+                ::urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
+                    input.as_str(),
+                    base_url,
+                )
+                .map_err(Error)?
+            }
+            Some(UrlPatternInput::Init(init)) => ::urlpattern::UrlPatternInit {
+                protocol: init
+                    .get_item("protocol")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                username: init
+                    .get_item("username")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                password: init
+                    .get_item("password")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                hostname: init
+                    .get_item("hostname")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                port: init
+                    .get_item("port")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                pathname: init
+                    .get_item("pathname")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                search: init
+                    .get_item("search")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                hash: init
+                    .get_item("hash")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?,
+                base_url: init
+                    .get_item("baseURL")?
+                    .map(|v| v.extract::<String>())
+                    .transpose()?
+                    .map(|v| v.parse::<url::Url>())
+                    .transpose()
+                    .map_err(::urlpattern::Error::Url)
+                    .map_err(Error)?,
             },
             None => ::urlpattern::UrlPatternInit::default(),
         };
@@ -139,79 +137,75 @@ impl UrlPattern {
         let base_url = baseURL;
 
         let input: ::urlpattern::UrlPatternMatchInput = match input {
-            Some(input) => match input {
-                UrlPatternInput::String(input) => match base_url {
-                    Some(base_url) => {
-                        let base_url = match url::Url::parse(base_url) {
+            Some(UrlPatternInput::String(input)) => match base_url {
+                Some(base_url) => {
+                    let base_url = match url::Url::parse(base_url) {
+                        Ok(url) => url,
+                        Err(_) => return Ok(false),
+                    };
+                    ::urlpattern::UrlPatternMatchInput::Url(
+                        match url::Url::options()
+                            .base_url(Some(&base_url))
+                            .parse(input.as_ref())
+                        {
                             Ok(url) => url,
                             Err(_) => return Ok(false),
-                        };
-                        ::urlpattern::UrlPatternMatchInput::Url(
-                            match url::Url::options()
-                                .base_url(Some(&base_url))
-                                .parse(input.as_ref())
-                            {
-                                Ok(url) => url,
-                                Err(_) => return Ok(false),
-                            },
-                        )
-                    }
-                    None => {
-                        ::urlpattern::UrlPatternMatchInput::Url(match input.parse::<url::Url>() {
-                            Ok(url) => url,
-                            Err(_) => return Ok(false),
-                        })
-                    }
-                },
-                UrlPatternInput::Init(init) => {
-                    if base_url.is_some() {
-                        return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
-                    }
-
-                    ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit {
-                        protocol: init
-                            .get_item("protocol")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        username: init
-                            .get_item("username")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        password: init
-                            .get_item("password")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        hostname: init
-                            .get_item("hostname")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        port: init
-                            .get_item("port")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        pathname: init
-                            .get_item("pathname")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        search: init
-                            .get_item("search")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        hash: init
-                            .get_item("hash")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        base_url: init
-                            .get_item("baseURL")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?
-                            .map(|v| v.parse::<url::Url>())
-                            .transpose()
-                            .map_err(::urlpattern::Error::Url)
-                            .map_err(Error)?,
-                    })
+                        },
+                    )
                 }
+                None => ::urlpattern::UrlPatternMatchInput::Url(match input.parse::<url::Url>() {
+                    Ok(url) => url,
+                    Err(_) => return Ok(false),
+                }),
             },
+            Some(UrlPatternInput::Init(init)) => {
+                if base_url.is_some() {
+                    return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
+                }
+
+                ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit {
+                    protocol: init
+                        .get_item("protocol")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    username: init
+                        .get_item("username")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    password: init
+                        .get_item("password")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hostname: init
+                        .get_item("hostname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    port: init
+                        .get_item("port")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    pathname: init
+                        .get_item("pathname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    search: init
+                        .get_item("search")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hash: init
+                        .get_item("hash")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    base_url: init
+                        .get_item("baseURL")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?
+                        .map(|v| v.parse::<url::Url>())
+                        .transpose()
+                        .map_err(::urlpattern::Error::Url)
+                        .map_err(Error)?,
+                })
+            }
             None => {
                 ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit::default())
             }
@@ -230,79 +224,75 @@ impl UrlPattern {
 
         let urlpattern_input: Option<UrlPatternInput> = input.map(|i| i.extract()).transpose()?;
         let input: ::urlpattern::UrlPatternMatchInput = match &urlpattern_input {
-            Some(input) => match input {
-                UrlPatternInput::String(input) => match base_url {
-                    Some(base_url) => {
-                        let base_url = match url::Url::parse(base_url.to_str()?) {
+            Some(UrlPatternInput::String(input)) => match base_url {
+                Some(base_url) => {
+                    let base_url = match url::Url::parse(base_url.to_str()?) {
+                        Ok(url) => url,
+                        Err(_) => return Ok(None),
+                    };
+                    ::urlpattern::UrlPatternMatchInput::Url(
+                        match url::Url::options()
+                            .base_url(Some(&base_url))
+                            .parse(input.as_ref())
+                        {
                             Ok(url) => url,
                             Err(_) => return Ok(None),
-                        };
-                        ::urlpattern::UrlPatternMatchInput::Url(
-                            match url::Url::options()
-                                .base_url(Some(&base_url))
-                                .parse(input.as_ref())
-                            {
-                                Ok(url) => url,
-                                Err(_) => return Ok(None),
-                            },
-                        )
-                    }
-                    None => {
-                        ::urlpattern::UrlPatternMatchInput::Url(match input.parse::<url::Url>() {
-                            Ok(url) => url,
-                            Err(_) => return Ok(None),
-                        })
-                    }
-                },
-                UrlPatternInput::Init(init) => {
-                    if baseURL.is_some() {
-                        return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
-                    }
-
-                    ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit {
-                        protocol: init
-                            .get_item("protocol")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        username: init
-                            .get_item("username")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        password: init
-                            .get_item("password")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        hostname: init
-                            .get_item("hostname")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        port: init
-                            .get_item("port")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        pathname: init
-                            .get_item("pathname")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        search: init
-                            .get_item("search")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        hash: init
-                            .get_item("hash")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?,
-                        base_url: init
-                            .get_item("baseURL")?
-                            .map(|v| v.extract::<String>())
-                            .transpose()?
-                            .map(|v| v.parse::<url::Url>())
-                            .transpose()
-                            .map_err(::urlpattern::Error::Url)
-                            .map_err(Error)?,
-                    })
+                        },
+                    )
                 }
+                None => ::urlpattern::UrlPatternMatchInput::Url(match input.parse::<url::Url>() {
+                    Ok(url) => url,
+                    Err(_) => return Ok(None),
+                }),
             },
+            Some(UrlPatternInput::Init(init)) => {
+                if baseURL.is_some() {
+                    return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
+                }
+
+                ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit {
+                    protocol: init
+                        .get_item("protocol")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    username: init
+                        .get_item("username")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    password: init
+                        .get_item("password")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hostname: init
+                        .get_item("hostname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    port: init
+                        .get_item("port")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    pathname: init
+                        .get_item("pathname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    search: init
+                        .get_item("search")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hash: init
+                        .get_item("hash")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    base_url: init
+                        .get_item("baseURL")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?
+                        .map(|v| v.parse::<url::Url>())
+                        .transpose()
+                        .map_err(::urlpattern::Error::Url)
+                        .map_err(Error)?,
+                })
+            }
             None => {
                 ::urlpattern::UrlPatternMatchInput::Init(::urlpattern::UrlPatternInit::default())
             }
