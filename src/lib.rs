@@ -42,10 +42,8 @@ impl UrlPattern {
             None => (None, options),
         };
 
-        if let Some(UrlPatternInput::Init(_)) = input {
-            if let Some(_) = base_url {
-                return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
-            }
+        if matches!(input, Some(UrlPatternInput::Init(_))) && base_url.is_some() {
+            return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
         }
 
         let init: ::urlpattern::UrlPatternInit = match input {
@@ -162,7 +160,7 @@ impl UrlPattern {
                     }
                 },
                 UrlPatternInput::Init(init) => {
-                    if let Some(_) = baseURL {
+                    if baseURL.is_some() {
                         return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
                     }
 
@@ -251,7 +249,7 @@ impl UrlPattern {
                     }
                 },
                 UrlPatternInput::Init(init) => {
-                    if let Some(_) = baseURL {
+                    if baseURL.is_some() {
                         return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
                     }
 
