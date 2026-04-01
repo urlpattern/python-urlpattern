@@ -44,10 +44,6 @@ impl UrlPattern {
             None => (None, options),
         };
 
-        if matches!(input, Some(UrlPatternInput::Init(_))) && base_url.is_some() {
-            return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
-        }
-
         let init: ::urlpattern::UrlPatternInit = match input {
             Some(UrlPatternInput::String(input)) => {
                 ::urlpattern::UrlPatternInit::parse_constructor_string::<regex::Regex>(
@@ -56,48 +52,54 @@ impl UrlPattern {
                 )
                 .map_err(Error)?
             }
-            Some(UrlPatternInput::Init(init)) => ::urlpattern::UrlPatternInit {
-                protocol: init
-                    .get_item("protocol")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                username: init
-                    .get_item("username")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                password: init
-                    .get_item("password")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                hostname: init
-                    .get_item("hostname")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                port: init
-                    .get_item("port")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                pathname: init
-                    .get_item("pathname")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                search: init
-                    .get_item("search")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                hash: init
-                    .get_item("hash")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?,
-                base_url: init
-                    .get_item("baseURL")?
-                    .map(|v| v.extract::<String>())
-                    .transpose()?
-                    .map(|v| v.parse::<url::Url>())
-                    .transpose()
-                    .map_err(::urlpattern::Error::Url)
-                    .map_err(Error)?,
-            },
+            Some(UrlPatternInput::Init(init)) => {
+                if base_url.is_some() {
+                    return Err(PyTypeError::new_err("cannot use dict input with baseURL"));
+                }
+
+                ::urlpattern::UrlPatternInit {
+                    protocol: init
+                        .get_item("protocol")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    username: init
+                        .get_item("username")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    password: init
+                        .get_item("password")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hostname: init
+                        .get_item("hostname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    port: init
+                        .get_item("port")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    pathname: init
+                        .get_item("pathname")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    search: init
+                        .get_item("search")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    hash: init
+                        .get_item("hash")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?,
+                    base_url: init
+                        .get_item("baseURL")?
+                        .map(|v| v.extract::<String>())
+                        .transpose()?
+                        .map(|v| v.parse::<url::Url>())
+                        .transpose()
+                        .map_err(::urlpattern::Error::Url)
+                        .map_err(Error)?,
+                }
+            }
             None => ::urlpattern::UrlPatternInit::default(),
         };
         let options = if let Some(options) = options {
