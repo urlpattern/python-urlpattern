@@ -29,19 +29,22 @@ impl UrlPattern {
                 } else if value.is_none() {
                     (None, options)
                 } else {
-                    (
-                        Some(
-                            value
-                                .extract::<String>()?
-                                .parse::<url::Url>()
-                                .map_err(::urlpattern::Error::Url)
-                                .map_err(Error)?,
-                        ),
-                        options,
-                    )
+                    (base_url, options)
                 }
             }
             None => (None, options),
+        };
+
+        let base_url = if let Some(base_url) = base_url {
+            Some(
+                base_url
+                    .extract::<String>()?
+                    .parse::<url::Url>()
+                    .map_err(::urlpattern::Error::Url)
+                    .map_err(Error)?,
+            )
+        } else {
+            None
         };
 
         let options = if let Some(options) = options {
