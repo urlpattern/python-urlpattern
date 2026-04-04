@@ -151,10 +151,7 @@ impl UrlPattern {
                         Err(_) => return Ok(false),
                     };
                     ::urlpattern::UrlPatternMatchInput::Url(
-                        match url::Url::options()
-                            .base_url(Some(&base_url))
-                            .parse(input.as_ref())
-                        {
+                        match url::Url::options().base_url(Some(&base_url)).parse(&input) {
                             Ok(url) => url,
                             Err(_) => return Ok(false),
                         },
@@ -239,10 +236,7 @@ impl UrlPattern {
                         Err(_) => return Ok(None),
                     };
                     ::urlpattern::UrlPatternMatchInput::Url(
-                        match url::Url::options()
-                            .base_url(Some(&base_url))
-                            .parse(input.as_ref())
-                        {
+                        match url::Url::options().base_url(Some(&base_url)).parse(input) {
                             Ok(url) => url,
                             Err(_) => return Ok(None),
                         },
