@@ -128,19 +128,18 @@ impl UrlPattern {
         ))
     }
 
-    fn __repr__(&self, py: Python) -> String {
+    fn __repr__(&self, py: Python) -> PyResult<String> {
         let dict = PyDict::new(py);
-        dict.set_item("protocol", self.0.protocol()).unwrap();
-        dict.set_item("username", self.0.username()).unwrap();
-        dict.set_item("password", self.0.password()).unwrap();
-        dict.set_item("hostname", self.0.hostname()).unwrap();
-        dict.set_item("port", self.0.port()).unwrap();
-        dict.set_item("pathname", self.0.pathname()).unwrap();
-        dict.set_item("search", self.0.search()).unwrap();
-        dict.set_item("hash", self.0.hash()).unwrap();
-        dict.set_item("hasRegExpGroups", self.0.has_regexp_groups())
-            .unwrap();
-        format!("URLPattern({})", dict)
+        dict.set_item("protocol", self.0.protocol())?;
+        dict.set_item("username", self.0.username())?;
+        dict.set_item("password", self.0.password())?;
+        dict.set_item("hostname", self.0.hostname())?;
+        dict.set_item("port", self.0.port())?;
+        dict.set_item("pathname", self.0.pathname())?;
+        dict.set_item("search", self.0.search())?;
+        dict.set_item("hash", self.0.hash())?;
+        dict.set_item("hasRegExpGroups", self.0.has_regexp_groups())?;
+        Ok(format!("URLPattern({})", dict))
     }
 
     #[pyo3(signature = (input=None, baseURL=None))]
@@ -415,7 +414,7 @@ struct UrlPatternResult<'py> {
 impl<'py> IntoPyObject<'py> for UrlPatternResult<'py> {
     type Target = PyDict;
     type Output = Bound<'py, Self::Target>;
-    type Error = std::convert::Infallible;
+    type Error = PyErr;
 
     fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         let dict = PyDict::new(py);
@@ -424,23 +423,23 @@ impl<'py> IntoPyObject<'py> for UrlPatternResult<'py> {
         for input in self.inputs {
             match input {
                 UrlPatternInput::String(string) => {
-                    inputs.append(string).unwrap();
+                    inputs.append(string)?;
                 }
                 UrlPatternInput::Init(init) => {
-                    inputs.append(init).unwrap();
+                    inputs.append(init)?;
                 }
             }
         }
 
-        dict.set_item("inputs", inputs).unwrap();
-        dict.set_item("protocol", self.protocol).unwrap();
-        dict.set_item("username", self.username).unwrap();
-        dict.set_item("password", self.password).unwrap();
-        dict.set_item("hostname", self.hostname).unwrap();
-        dict.set_item("port", self.port).unwrap();
-        dict.set_item("pathname", self.pathname).unwrap();
-        dict.set_item("search", self.search).unwrap();
-        dict.set_item("hash", self.hash).unwrap();
+        dict.set_item("inputs", inputs)?;
+        dict.set_item("protocol", self.protocol)?;
+        dict.set_item("username", self.username)?;
+        dict.set_item("password", self.password)?;
+        dict.set_item("hostname", self.hostname)?;
+        dict.set_item("port", self.port)?;
+        dict.set_item("pathname", self.pathname)?;
+        dict.set_item("search", self.search)?;
+        dict.set_item("hash", self.hash)?;
         Ok(dict.into_bound())
     }
 }
