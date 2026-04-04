@@ -35,29 +35,27 @@ impl UrlPattern {
             None => (None, options),
         };
 
-        let base_url = if let Some(base_url) = base_url {
-            Some(
+        let base_url = match base_url {
+            Some(base_url) => Some(
                 base_url
                     .extract::<String>()?
                     .parse::<url::Url>()
                     .map_err(::urlpattern::Error::Url)
                     .map_err(Error)?,
-            )
-        } else {
-            None
+            ),
+            None => None,
         };
 
-        let options = if let Some(options) = options {
-            ::urlpattern::UrlPatternOptions {
+        let options = match options {
+            Some(options) => ::urlpattern::UrlPatternOptions {
                 ignore_case: options
                     .get_item("ignoreCase")?
                     .map(|v| v.extract::<bool>())
                     .transpose()?
                     .unwrap_or(false),
                 ..::urlpattern::UrlPatternOptions::default()
-            }
-        } else {
-            ::urlpattern::UrlPatternOptions::default()
+            },
+            None => ::urlpattern::UrlPatternOptions::default(),
         };
 
         let init: ::urlpattern::UrlPatternInit = match input {
