@@ -1,12 +1,10 @@
 #![allow(non_snake_case)]
 
 use pyo3::{
-    BoundObject,
     exceptions::{PyTypeError, PyValueError},
     prelude::*,
     types::{PyDict, PyList, PyString},
 };
-use std::collections::HashMap;
 
 #[derive(FromPyObject)]
 enum UrlPatternInput<'py> {
@@ -227,11 +225,13 @@ impl UrlPattern {
         py: Python<'py>,
         input: Option<&Bound<'py, PyAny>>,
         baseURL: Option<&Bound<'py, PyString>>,
-    ) -> PyResult<Option<UrlPatternResult<'py>>> {
+    ) -> PyResult<Option<Bound<'py, PyDict>>> {
         let base_url = baseURL;
 
-        let urlpattern_input: Option<UrlPatternInput> = input.map(|i| i.extract()).transpose()?;
-        let input: ::urlpattern::UrlPatternMatchInput = match &urlpattern_input {
+        let urlpattern_input: ::urlpattern::UrlPatternMatchInput = match input
+            .map(|i| i.extract())
+            .transpose()?
+        {
             Some(UrlPatternInput::String(input)) => match base_url {
                 Some(base_url) => {
                     let base_url = match url::Url::parse(base_url.to_str()?) {
@@ -239,7 +239,7 @@ impl UrlPattern {
                         Err(_) => return Ok(None),
                     };
                     ::urlpattern::UrlPatternMatchInput::Url(
-                        match url::Url::options().base_url(Some(&base_url)).parse(input) {
+                        match url::Url::options().base_url(Some(&base_url)).parse(&input) {
                             Ok(url) => url,
                             Err(_) => return Ok(None),
                         },
@@ -303,54 +303,59 @@ impl UrlPattern {
             }
         };
 
-        let Some(result) = self.0.exec(input).map_err(Error)? else {
+        let Some(urlpattern_result) = self.0.exec(urlpattern_input).map_err(Error)? else {
             return Ok(None);
         };
 
-        Ok(Some(UrlPatternResult {
-            inputs: {
-                let mut vec = Vec::new();
-                vec.push(
-                    urlpattern_input.unwrap_or(UrlPatternInput::Init(PyDict::new(py).into_bound())),
-                );
-                if let Some(base_url) = base_url {
-                    vec.push(UrlPatternInput::String(base_url.to_string()));
-                }
-                vec
-            },
-            protocol: UrlPatternComponentResult {
-                input: result.protocol.input,
-                groups: result.protocol.groups,
-            },
-            username: UrlPatternComponentResult {
-                input: result.username.input,
-                groups: result.username.groups,
-            },
-            password: UrlPatternComponentResult {
-                input: result.password.input,
-                groups: result.password.groups,
-            },
-            hostname: UrlPatternComponentResult {
-                input: result.hostname.input,
-                groups: result.hostname.groups,
-            },
-            port: UrlPatternComponentResult {
-                input: result.port.input,
-                groups: result.port.groups,
-            },
-            pathname: UrlPatternComponentResult {
-                input: result.pathname.input,
-                groups: result.pathname.groups,
-            },
-            search: UrlPatternComponentResult {
-                input: result.search.input,
-                groups: result.search.groups,
-            },
-            hash: UrlPatternComponentResult {
-                input: result.hash.input,
-                groups: result.hash.groups,
-            },
-        }))
+        let result = PyDict::new(py);
+
+        let inputs = PyList::new(py, vec![input.unwrap_or(&PyDict::new(py))])?;
+        if let Some(base_url) = base_url {
+            inputs.append(base_url)?;
+        }
+        result.set_item("inputs", inputs)?;
+
+        let protocol = PyDict::new(py);
+        protocol.set_item("input", urlpattern_result.protocol.input)?;
+        protocol.set_item("groups", urlpattern_result.protocol.groups)?;
+        result.set_item("protocol", protocol)?;
+
+        let username = PyDict::new(py);
+        username.set_item("input", urlpattern_result.username.input)?;
+        username.set_item("groups", urlpattern_result.username.groups)?;
+        result.set_item("username", username)?;
+
+        let password = PyDict::new(py);
+        password.set_item("input", urlpattern_result.password.input)?;
+        password.set_item("groups", urlpattern_result.password.groups)?;
+        result.set_item("password", password)?;
+
+        let hostname = PyDict::new(py);
+        hostname.set_item("input", urlpattern_result.hostname.input)?;
+        hostname.set_item("groups", urlpattern_result.hostname.groups)?;
+        result.set_item("hostname", hostname)?;
+
+        let port = PyDict::new(py);
+        port.set_item("input", urlpattern_result.port.input)?;
+        port.set_item("groups", urlpattern_result.port.groups)?;
+        result.set_item("port", port)?;
+
+        let pathname = PyDict::new(py);
+        pathname.set_item("input", urlpattern_result.pathname.input)?;
+        pathname.set_item("groups", urlpattern_result.pathname.groups)?;
+        result.set_item("pathname", pathname)?;
+
+        let search = PyDict::new(py);
+        search.set_item("input", urlpattern_result.search.input)?;
+        search.set_item("groups", urlpattern_result.search.groups)?;
+        result.set_item("search", search)?;
+
+        let hash = PyDict::new(py);
+        hash.set_item("input", urlpattern_result.hash.input)?;
+        hash.set_item("groups", urlpattern_result.hash.groups)?;
+        result.set_item("hash", hash)?;
+
+        Ok(Some(result))
     }
 
     #[getter]
@@ -397,57 +402,6 @@ impl UrlPattern {
     fn has_regexp_groups(&self) -> PyResult<bool> {
         Ok(self.0.has_regexp_groups())
     }
-}
-
-struct UrlPatternResult<'py> {
-    inputs: Vec<UrlPatternInput<'py>>,
-    protocol: UrlPatternComponentResult,
-    username: UrlPatternComponentResult,
-    password: UrlPatternComponentResult,
-    hostname: UrlPatternComponentResult,
-    port: UrlPatternComponentResult,
-    pathname: UrlPatternComponentResult,
-    search: UrlPatternComponentResult,
-    hash: UrlPatternComponentResult,
-}
-
-impl<'py> IntoPyObject<'py> for UrlPatternResult<'py> {
-    type Target = PyDict;
-    type Output = Bound<'py, Self::Target>;
-    type Error = PyErr;
-
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        let dict = PyDict::new(py);
-
-        let inputs = PyList::empty(py);
-        for input in self.inputs {
-            match input {
-                UrlPatternInput::String(string) => {
-                    inputs.append(string)?;
-                }
-                UrlPatternInput::Init(init) => {
-                    inputs.append(init)?;
-                }
-            }
-        }
-
-        dict.set_item("inputs", inputs)?;
-        dict.set_item("protocol", self.protocol)?;
-        dict.set_item("username", self.username)?;
-        dict.set_item("password", self.password)?;
-        dict.set_item("hostname", self.hostname)?;
-        dict.set_item("port", self.port)?;
-        dict.set_item("pathname", self.pathname)?;
-        dict.set_item("search", self.search)?;
-        dict.set_item("hash", self.hash)?;
-        Ok(dict.into_bound())
-    }
-}
-
-#[derive(IntoPyObject, IntoPyObjectRef)]
-struct UrlPatternComponentResult {
-    input: String,
-    groups: HashMap<String, Option<String>>,
 }
 
 struct Error(::urlpattern::Error);
