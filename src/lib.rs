@@ -8,6 +8,12 @@ use pyo3::{
 };
 use std::collections::HashMap;
 
+#[derive(FromPyObject)]
+enum UrlPatternInput<'py> {
+    String(String),
+    Init(Bound<'py, PyDict>),
+}
+
 #[pyclass(name = "URLPattern")]
 struct UrlPattern(::urlpattern::UrlPattern);
 
@@ -392,12 +398,6 @@ impl UrlPattern {
     fn has_regexp_groups(&self) -> PyResult<bool> {
         Ok(self.0.has_regexp_groups())
     }
-}
-
-#[derive(FromPyObject)]
-enum UrlPatternInput<'py> {
-    String(String),
-    Init(Bound<'py, PyDict>),
 }
 
 struct UrlPatternResult<'py> {
