@@ -104,6 +104,6 @@ class URLPatternResult(TypedDict):
 
 class URLPatternComponentResult(TypedDict):
     input: str
-    groups: dict[str, str]
+    groups: dict[str, Optional[str]]
 
 URLPatternCompatible: TypeAlias = Union[str, URLPatternInit, URLPattern]
