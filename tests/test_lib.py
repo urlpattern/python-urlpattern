@@ -53,6 +53,7 @@ def test(entry):
         assert pattern.test(*entry["inputs"])
 
         result = pattern.exec(*entry["inputs"])
+        assert result is not None
         for key in entry["expected_match"]:
             assert result[key] == entry["expected_match"][key]
 
