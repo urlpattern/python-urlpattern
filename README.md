@@ -9,9 +9,9 @@ An implementation of [the URL Pattern Standard](https://urlpattern.spec.whatwg.o
 
 ## Introduction
 
-The URL Pattern Standard is a web standard for URL pattern matching. It is useful on the server side when serving different pages based on the URL (a.k.a. routing). It provides pattern matching syntax like `/users/:id`, similar to [route parameters in Express](https://expressjs.com/en/guide/routing.html#route-parameters) or [Path-to-RegExp](https://github.com/pillarjs/path-to-regexp). You can use it as a foundation to build your own web server or framework.
-
 It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
+
+It is useful on the server side when serving different pages based on the URL (a.k.a. routing). It provides pattern matching syntax like `/users/:id`, similar to [route parameters in Express](https://expressjs.com/en/guide/routing.html#route-parameters) or [Path-to-RegExp](https://github.com/pillarjs/path-to-regexp). You can use it as a foundation to build your own web server or framework.
 
 ## Installation
 
