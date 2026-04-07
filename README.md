@@ -13,8 +13,6 @@ The URL Pattern Standard is a web standard for URL pattern matching. It is usefu
 
 It's a thin wrapper of [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern) with [PyO3](https://github.com/PyO3/pyo3) + [Maturin](https://github.com/PyO3/maturin).
 
-The naming conventions follow [the standard](https://urlpattern.spec.whatwg.org/) as closely as possible, similar to [xml.dom](https://docs.python.org/3/library/xml.dom.html).
-
 ## Installation
 
 On Linux/UNIX or macOS:
@@ -128,6 +126,6 @@ Check `pytest.skip` in [`tests/test_lib.py`](https://github.com/urlpattern/pytho
 
 ## Why camelCase?
 
-In this library, some names such as `baseURL` and `hasRegExpGroups` do not use snake_case.
+As seen in names like `baseURL` and `hasRegExpGroups`, this library does not follow Python's [PEP 8 naming conventions](https://peps.python.org/pep-0008/#function-and-variable-names). Instead, it follows [the standard](https://urlpattern.spec.whatwg.org/) naming as closely as possible.
 
-Like [`xml.dom`](https://docs.python.org/3/library/xml.dom.html), Python wrappers around web standards typically preserve the original camelCase rather than converting names to snake_case. This library follows that convention as well.
+Like [`xml.dom`](https://docs.python.org/3/library/xml.dom.html), Python wrappers around web standards typically preserve the original camelCase rather than converting names to snake_case, and this library follows that convention as well.
