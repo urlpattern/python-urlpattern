@@ -27,13 +27,11 @@ impl UrlPattern {
         let base_url = baseURL;
 
         let (base_url, options) = match base_url {
-            Some(value) => {
-                if let Ok(options_dict) = value.cast::<PyDict>() {
-                    (None, Some(options_dict))
-                } else if value.is_none() {
-                    (None, options)
+            Some(base_url) => {
+                if let Ok(options) = base_url.cast::<PyDict>() {
+                    (None, Some(options))
                 } else {
-                    (base_url, options)
+                    (Some(base_url), options)
                 }
             }
             None => (None, options),
