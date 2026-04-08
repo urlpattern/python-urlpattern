@@ -12,12 +12,12 @@ from urlpattern import URLPattern
 # 1. Go to https://github.com/web-platform-tests/wpt/blob/master/urlpattern/resources/urlpatterntestdata.json.
 # 2. Copy the content.
 # 3. Paste into `tests/urlpatterntestdata.json`.
-urlpatterntestdata = json.loads(
+URLPATTERNTESTDATA = json.loads(
     pathlib.Path("tests/urlpatterntestdata.json").read_text("utf-8")
 )
 
 
-@pytest.mark.parametrize("entry", urlpatterntestdata)
+@pytest.mark.parametrize("entry", URLPATTERNTESTDATA)
 def test(entry):
     if entry["pattern"] == [{"pathname": "*{}**?"}] or entry["pattern"] == ["((?R)):"]:
         pytest.skip("unsupported in the implementation")
