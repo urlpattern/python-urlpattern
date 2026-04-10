@@ -39,8 +39,15 @@ Most JavaScript examples from [Chrome for Developers](https://developer.chrome.c
 from urlpattern import URLPattern
 
 pattern = URLPattern("https://example.com/admin/*")
-print(pattern.test("https://example.com/admin/main/"))  # output: True
-print(pattern.test("https://example.com/main/"))  # output: False
+print(pattern.test("https://example.com/admin/main/"))
+print(pattern.test("https://example.com/main/"))
+```
+
+Output:
+
+```
+True
+False
 ```
 
 ### `exec`
@@ -50,7 +57,13 @@ from urlpattern import URLPattern
 
 pattern = URLPattern({"pathname": "/users/:id/"})
 result = pattern.exec({"pathname": "/users/4163/"})
-print(result["pathname"]["groups"]["id"])  # output: 4163
+print(result["pathname"]["groups"]["id"])
+```
+
+Output:
+
+```
+4163
 ```
 
 ### `baseURL`
@@ -59,11 +72,19 @@ print(result["pathname"]["groups"]["id"])  # output: 4163
 from urlpattern import URLPattern
 
 pattern = URLPattern("b", "https://example.com/a/")
-print(pattern.test("a/b", "https://example.com/"))  # output: True
-print(pattern.test("b", "https://example.com/a/"))  # output: True
+print(pattern.test("a/b", "https://example.com/"))
+print(pattern.test("b", "https://example.com/a/"))
 print(
     pattern.test({"pathname": "b", "baseURL": "https://example.com/a/"})
-)  # output: True
+)
+```
+
+Output:
+
+```
+True
+True
+True
 ```
 
 ### `ignoreCase`
@@ -72,12 +93,21 @@ print(
 from urlpattern import URLPattern
 
 pattern = URLPattern("https://example.com/test")
-print(pattern.test("https://example.com/test"))  # output: True
-print(pattern.test("https://example.com/TeST"))  # output: False
+print(pattern.test("https://example.com/test"))
+print(pattern.test("https://example.com/TeST"))
 
 pattern = URLPattern("https://example.com/test", {"ignoreCase": True})
-print(pattern.test("https://example.com/test"))  # output: True
-print(pattern.test("https://example.com/TeST"))  # output: True
+print(pattern.test("https://example.com/test"))
+print(pattern.test("https://example.com/TeST"))
+```
+
+Output:
+
+```
+True
+False
+True
+True
 ```
 
 ### A simple WSGI app
