@@ -29,11 +29,9 @@ py -m pip install urlpattern
 
 ## Usage
 
-Check [urlpattern.pyi](https://github.com/urlpattern/python-urlpattern/blob/main/urlpattern.pyi) or the examples below.
+This library aims to expose an interface as close as possible to the URL Pattern Standard, but some differences are unavoidable because it is designed for JavaScript, not Python. For the exact details, please refer to [urlpattern.pyi](https://github.com/urlpattern/python-urlpattern/blob/main/urlpattern.pyi).
 
-For various usage examples, you can also check [Chrome for Developers](https://developer.chrome.com/docs/web-platform/urlpattern) or [MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API) (you need to convert JavaScript into Python).
-
-## Examples
+Most JavaScript examples from [Chrome for Developers](https://developer.chrome.com/docs/web-platform/urlpattern) and [MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API) can be adapted to Python without much difficulty.
 
 ### `test`
 
