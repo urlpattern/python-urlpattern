@@ -3,7 +3,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/urlpattern)](https://pypi.org/project/urlpattern/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/urlpattern)](https://pypi.org/project/urlpattern/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![CI](https://github.com/urlpattern/python-urlpattern/actions/workflows/CI.yml/badge.svg)](https://github.com/urlpattern/python-urlpattern/actions/workflows/CI.yml)
+[![CI](https://github.com/bangseongbeom/python-urlpattern/actions/workflows/CI.yml/badge.svg)](https://github.com/bangseongbeom/python-urlpattern/actions/workflows/CI.yml)
 
 An implementation of [the URL Pattern Standard](https://urlpattern.spec.whatwg.org/) for Python written in Rust.
 
@@ -29,7 +29,7 @@ py -m pip install urlpattern
 
 ## Usage
 
-This library aims to expose an interface as close as possible to the URL Pattern Standard, but some differences are unavoidable because it is designed for Python, not JavaScript. For the exact details, please refer to [urlpattern.pyi](https://github.com/urlpattern/python-urlpattern/blob/main/urlpattern.pyi).
+This library aims to expose an interface as close as possible to the URL Pattern Standard, but some differences are unavoidable because it is designed for Python, not JavaScript. For the exact details, please refer to [urlpattern.pyi](https://github.com/bangseongbeom/python-urlpattern/blob/main/urlpattern.pyi).
 
 Most JavaScript examples from [Chrome for Developers](https://developer.chrome.com/docs/web-platform/urlpattern) and [MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API) can be adapted to Python without much difficulty.
 
@@ -150,7 +150,7 @@ with make_server("", 8000, app) as httpd:
 
 Due to limitations in the dependency [denoland/rust-urlpattern](https://github.com/denoland/rust-urlpattern), it may not support all features specified in [the standard](https://urlpattern.spec.whatwg.org/).
 
-Check `pytest.skip` in [`tests/test_lib.py`](https://github.com/urlpattern/python-urlpattern/blob/main/tests/test_lib.py).
+Check `pytest.skip` in [`tests/test_lib.py`](https://github.com/bangseongbeom/python-urlpattern/blob/main/tests/test_lib.py).
 
 ## Why camelCase?
 

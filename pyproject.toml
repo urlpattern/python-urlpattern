@@ -33,6 +33,6 @@ classifiers = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/urlpattern/python-urlpattern"
-Repository = "https://github.com/urlpattern/python-urlpattern.git"
-Issues = "https://github.com/urlpattern/python-urlpattern/issues"
+Homepage = "https://github.com/bangseongbeom/python-urlpattern"
+Repository = "https://github.com/bangseongbeom/python-urlpattern.git"
+Issues = "https://github.com/bangseongbeom/python-urlpattern/issues"
